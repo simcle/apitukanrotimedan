@@ -25,7 +25,7 @@ exports.webhook = async (req, res) => {
             console.log('webhoo.js', data)
         break;
         case 'delete_userinfo':
-            console.log('delete_userinfo')
+            console.log('webhook.js','delete_userinfo')
         break;
         case 'get_userid_list':
             console.log('get_userid_list')
