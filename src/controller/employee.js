@@ -1,41 +1,162 @@
-const EmployeesModel = require('../models/employee');
-const MerchantModel = require('../models/merchant');
+require('dotenv').config()
+const EmployeeModel = require('../models/employee');
+const BranchesModel = require('../models/branches')
 const moment = require('moment');
+const axios = require('axios');
+const jwt = require('jsonwebtoken');
+const sendEmail = require('../config/mailer');
+const apiToken = process.env.API_TOKEN
 
-exports.getAllEmployees = async (req, res) => {
+exports.getAllEmployee = async (req, res) => {
     try {
-        const [data] = await EmployeesModel.getAllEmployees()
+        const [data] = await EmployeeModel.getAllEmployee();
         res.status(200).json(data)
     } catch (error) {
         res.status(400).send(error)
     }
 }
 
-exports.createEmplloye = async (req, res) => {
+exports.inviteEmployee = async (req, res) => {
     try {
-        const [data] = await MerchantModel.getAllMerchants()
-        res.status(200).json(data);
+        const [data] = await EmployeeModel.inviteEmployee()
+        res.status(200).json(data)
+    } catch (error) {
+        res.status(400).send(error)
+    }
+}
+exports.sendInviteEmployee = async(req, res) => {
+    const employees = req.body.employees
+    try {
+        for (let i = 0; i < employees.length; i++) {
+            const id = employees[i].id
+            const name = employees[i].name
+            const email = employees[i].email
+            const token = jwt.sign({id: id}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '1h'})
+            const templateEmail = {
+                from: '"ROSCO NAULI BAKERY" <admin@tukangrotimedan.com>',
+                to: email,
+                subject: 'Invite User',
+                html: `
+                    <p>Dear ${name}</p>
+                    <p>Anda menerima undangan dari Admin ROSCO NAULI BAKERY untuk menjadi user. Untuk menerima undang ini silahkan klik link dibawah ini</p>
+                    <p>${process.env.CLIENT_URL}/resetPassword/${token}</p>
+                `
+            }
+            await sendEmail(templateEmail)
+        }
+        res.status(200).json('OK')
+    } catch (error) {
+        res.status(400).send(error)   
+    }
+    
+}
+exports.getEmployee = async (req, res) => {
+    const id = req.params.id
+    try {
+        const [data] = await EmployeeModel.getEmployee(id)
+        res.status(200).json(data[0])
     } catch (error) {
         res.status(400).send(error)
     }
 }
 
-exports.insertEmployees = async (req, res) => {
-    const body = req.body
-    if(body.tanggalLahir) {
-        const tanggalLahir = moment(body.tanggalLahir).format('YYYY-MM-DD')
-        body.tanggalLahir = tanggalLahir
-    }
-    if(body.tanggalBergabung) {
-        const tanggalBergabung = moment(body.tanggalBergabung).format('YYYY-MM-DD')
-        body.tanggalBergabung= tanggalBergabung
-    }
+exports.createEmployee = async (req, res) => {
     try {
-        const [row] = await EmployeesModel.insertEmployee(body)
-        const id = row.insertId
-        const [data] = await EmployeesModel.getEmployee(id)
-        res.status(200).json(data[0])
+        const [data] = await BranchesModel.getAllBranch();
+        res.status(200).json(data)
     } catch (error) {
         res.status(400).send(error)
     }
+}
+
+exports.insertEmployee = async (req, res) => {
+    const body = req.body
+    if(body.tanggalLahir) {
+        let tanggalLahir = moment(body.tanggalLahir).format('YYYY-MM-DD')
+        body.tanggalLahir = tanggalLahir
+    }
+    if(body.tanggalBergabung) {
+        let tanggalBergabung = moment(body.tanggalBergabung).format('YYYY-MM-DD')
+        body.tanggalBergabung = tanggalBergabung
+    }
+    try {
+        const [result] = await EmployeeModel.insertEmployee(body)
+        const id = result.insertId
+        let  [data] = await EmployeeModel.getEmployee(id)
+        data = data[0]
+        if(data.cloud_id) {
+            data = {
+                trans_id: data.id,
+                cloud_id: data.cloud_id,
+                data: {
+                    pin: data.id,
+                    name: data.name,
+                    privilege: 1,
+                    password: '',
+                    template: ''
+                }
+            }
+            await axios.post('http://developer.fingerspot.io/api/set_userinfo', data, {
+                headers: {
+                    Authorization: `Bearer ${apiToken}`
+                }
+            })
+        }
+        res.status(200).json({id: data.trans_id})
+    } catch (error) {
+        res.status(400).send(error)
+    }
+}
+
+exports.updateEmployee = async (req, res) => {
+    const body = req.body
+    if(body.tanggalLahir) {
+        let tanggalLahir = moment(body.tanggalLahir).format('YYYY-MM-DD')
+        body.tanggalLahir = tanggalLahir
+    }
+    if(body.tanggalBergabung) {
+        let tanggalBergabung = moment(body.tanggalBergabung).format('YYYY-MM-DD')
+        body.tanggalBergabung = tanggalBergabung
+    }
+    try {
+        await EmployeeModel.updateEmployee(body)
+        if(body.cloudId) {
+            let data = {
+                trans_id: body.id,
+                cloud_id: body.cloudId,
+                data: {
+                    pin: body.id,
+                    name: body.name,
+                    privilege: 1,
+                    password: '',
+                    template: body.template
+                }
+            }
+            const test = await axios.post('https://developer.fingerspot.io/api/set_userinfo', data, {
+                headers: {
+                    Authorization: `Bearer ${apiToken}`
+                }
+            })
+        }
+        res.status(200).json('OK')
+    } catch (error) {
+        res.status(400).send(error)   
+    }
+}
+
+exports.fingerPrint = (req, res) => {
+    const data = {
+        trans_id: req.body.id,
+        cloud_id: req.body.cloudId,
+        pin: req.body.id,
+        verification: 0
+    }
+    axios.post('https://developer.fingerspot.io/api/reg_online', data, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    })
+    .then(result => {
+        res.status(200).json(result.data);
+    })
 }

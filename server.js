@@ -18,14 +18,16 @@ const authRoutes = require('./src/routes/auth');
 const webhook = require('./src/routes/webhook');
 const companyRoutes = require('./src/routes/company');
 const countryRoutes = require('./src/routes/country');
-const merchantRoutes = require('./src/routes/merchants');
+const branchRoutes = require('./src/routes/branches');
+const userRoutes = require('./src/routes/users');
 const employeeRoutes = require('./src/routes/employee');
 
 app.use('/webhook', webhook);
 app.use('/auth', authRoutes);
 app.use('/setting', authenticateToken, companyRoutes);
 app.use('/country', authenticateToken, countryRoutes);
-app.use('/merchants', authenticateToken, merchantRoutes);
+app.use('/branches', authenticateToken, branchRoutes);
+app.use('/users', authenticateToken, userRoutes);
 app.use('/employee', authenticateToken, employeeRoutes);
 
 const PORT = process.env.PORT || 3000

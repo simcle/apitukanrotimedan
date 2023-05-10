@@ -2,7 +2,6 @@ require('dotenv').config();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const UsersModel = require('../models/users');
-const MerchantModel = require('../models/merchant');
 
 const tokenExpired = '1d'
 
@@ -12,24 +11,9 @@ exports.getMe = async (req, res) => {
         const [data] = await UsersModel.getMe(id)
         res.status(200).json(data[0])
     } catch (error) {
-        res.status(400).send(err)
-    }
-}
-
-// CREAT USER
-exports.createUser = async (req, res) => {
-    try {
-        const [data] = await MerchantModel.getAllMerchants()
-        const [users] = await UsersModel.getAllusers()
-        res.status(200).json({
-            merchants: data,
-            users: users
-        })
-    } catch (error) {
         res.status(400).send(error)
     }
 }
-
 
 // REGISTER
 exports.UserRegister = async (req, res) => {
@@ -38,42 +22,17 @@ exports.UserRegister = async (req, res) => {
         name: req.body.name,
         email: req.body.email,
         password: hashPassword,
-        merchantId: req.body.merchantId,
-        role: req.body.role
+        role: req.body.role,
+        isAuth: req.body.isAuth,
+        isAdmin: req.body.isAdmin
     }
 
     try {
-        await UsersModel.createUser(body)
+        await UsersModel.registerUser(body)
         res.status(201).send('Success');
     } catch (error) {   
         res.status(400).send(error)
         
-    }
-}
-
-// UPDATE USER 
-exports.UserUpdated = async (req, res) => {
-    const body = req.body
-    try {
-        await UsersModel.updateUser(body)
-        res.status(200).json('OK')
-    } catch (error) {
-        res.status(400).send(error)
-    }
-}
-
-// UPDATE PASSWORD 
-exports.UserUpdatePassword = async (req, res) => {
-    const hashPassword = await bcrypt.hash(req.body.password, 10);
-    const data = {
-        id: req.body.id,
-        password: hashPassword
-    }
-    try {
-        await UsersModel.updatePassword(data)
-        res.status(200).json('OK')
-    } catch (error) {
-        res.status(400).send(error)
     }
 }
 
@@ -130,6 +89,21 @@ exports.RefreshToken = async (req, res) => {
     })
 }
 
+//RESET PASSWORD
+exports.resetPassword = (req, res) => {
+    const token = req.params.token
+    const password = req.body.password
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
+        if(err) return res.status(400).send(err)
+        const hashPassword = await bcrypt.hash(password, 10)
+        const data = {
+            id: user.id,
+            password: hashPassword
+        }
+        await UsersModel.updatePassword(data)
+        res.status(200).json('OK')
+    })
+}
 // LOGOUT
 exports.UserLogout = async (req, res) => {
     const refreshToken = req.body.token

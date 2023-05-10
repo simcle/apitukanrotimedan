@@ -1,29 +1,28 @@
-const MerchantsModel = require('../models/merchant');
+const BranchModel = require('../models/branches');
 
-exports.getMerchants =  async (req, res) => {
+exports.getBranches =  async (req, res) => {
     try {
-        const [data] = await MerchantsModel.getAllMerchants()
+        const [data] = await BranchModel.getAllBranch()
         res.status(200).json(data)
     } catch (error) {
         res.status(400).send(error)
     }
 }
 
-exports.insertMerchant = async (req, res) => {
+exports.insertBranch = async (req, res) => {
     const body = req.body
     try {
-        await MerchantsModel.insertMerchant(body)
+        await BranchModel.insertBranch(body)
         res.status(200).json('OK')
     } catch (error) {
-        console.log(error)
         res.status(400).send(error)
     }
 }
 
-exports.updateMerchant = async (req, res) => {
+exports.updateBranch = async (req, res) => {
     const body = req.body
     try {
-        await MerchantsModel.updateMerchant(body)
+        await BranchModel.updateBranch(body)
         res.status(200).json('OK')
     } catch (error) {
         res.status(400).send(error)

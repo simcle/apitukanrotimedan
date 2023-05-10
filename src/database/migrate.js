@@ -2,6 +2,37 @@ const dbPool = require('../config/database');
 
 
 const migrate = async () => {
+    const users = `CREATE TABLE IF NOT EXISTS users(
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255),
+        email VARCHAR(255),
+        mobile_phone VARCHAR(255),
+        password VARCHAR(255),
+        refresh_token VARCHAR(255),
+        reset_password VARCHAR(255),
+        branch_id INT,
+        is_admin BOOLEAN DEFAULT false,
+        is_auth BOOLEAN DEFAULT false,
+        role VARCHAR(255),
+        status_pekerjaan VARCHAR(255),
+        gaji_pokok INT,
+        tanggal_bergabung DATE,
+        tanggal_keluar DATE,
+        nik_ktp VARCHAR(255),
+        tempat_lahir VARCHAR(255),
+        tanggal_lahir DATE,
+        jenis_kelamin VARCHAR(255),
+        status_pernikahan VARCHAR(255),
+        golongan_darah VARCHAR(255),
+        agama VARCHAR(255),
+        alamat VARCHAR(255),
+        template VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE (email)
+    )`
+    await dbPool.execute(users)
+    
     const companies = `CREATE TABLE IF NOT EXISTS companies(
         id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(255),
@@ -21,7 +52,7 @@ const migrate = async () => {
     ) ENGINE=INNODB`
     await dbPool.execute(companies)
 
-    const merchants = `CREATE TABLE IF NOT EXISTS merchants(
+    const branches = `CREATE TABLE IF NOT EXISTS branches(
         id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(255),
         address VARCHAR(255),
@@ -30,30 +61,7 @@ const migrate = async () => {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=INNODB`
-    await dbPool.execute(merchants)
-
-    const employees = `CREATE TABLE IF NOT EXISTS employees(
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        name VARCHAR(255) NOT NULL,
-        nik VARCHAR(255),
-        tempat_lahir VARCHAR(255),
-        tanggal_lahir DATE,
-        jenis_kelamin VARCHAR(255),
-        status_pernikahan VARCHAR(255),
-        golongan_darah VARCHAR(255),
-        agama VARCHAR(255),
-        alamat VARCHAR(255),
-        mobile_phone VARCHAR(255),
-        email VARCHAR(255),
-        posisi_pekerjaan VARCHAR(255),
-        merchant_id INT NOT NULL,
-        status_pekerjaan VARCHAR(255),
-        tanggal_bergabung DATE,
-        gaji_pokok INT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    ) ENGINE=INNODB`
-    await dbPool.execute(employees)
+    await dbPool.execute(branches)
 }
 
 module.exports = migrate

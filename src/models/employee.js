@@ -1,18 +1,42 @@
 const dbPool = require('../config/database');
 
-const getAllEmployees  = () => {
-    const sql =     `SELECT employees.*, merchants.name as merchant, merchants.cloud_id FROM employees LEFT JOIN merchants ON employees.merchant_id = merchants.id ORDER BY employees.name ASC`
+const getAllEmployee = () => {
+    const sql = `SELECT users.*, branches.name as cabang, branches.cloud_id FROM users RIGHT JOIN branches ON users.branch_id=branches.id WHERE users.is_admin=false`;
     return dbPool.execute(sql)
 }
+
+const inviteEmployee = () => {
+    const sql = `SELECT users.*, branches.name as cabang FROM users RIGHT JOIN branches on users.branch_id=branches.id WHERE is_auth=false`;
+    return dbPool.execute(sql)
+}
+
 const getEmployee = (id) => {
-    const sql = `SELECT employees.*, merchants.name as merchant, merchants.cloud_id FROM employees LEFT JOIN merchants ON employees.merchant_id = merchants.id WHERE employees.id='${id}'`
+    const sql = `SELECT users.*, branches.name as cabang, branches.cloud_id FROM users RIGHT JOIN branches ON users.branch_id=branches.id WHERE users.id='${id}'`
     return dbPool.execute(sql)
 }
-const insertEmployee =  (body) => {
-    const sql = `INSERT INTO employees (name, nik, tempat_lahir, tanggal_lahir, jenis_kelamin, status_pernikahan, golongan_darah, agama, alamat, mobile_phone, email, posisi_pekerjaan, merchant_id, status_pekerjaan, tanggal_bergabung, gaji_pokok) 
-        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+const insertEmployee = (body) => {
+    const sql = `INSERT INTO users (
+        name,
+        email,
+        mobile_phone,
+        nik_ktp,
+        tempat_lahir,
+        tanggal_lahir,
+        jenis_kelamin,
+        status_pernikahan,
+        golongan_darah,
+        agama,
+        alamat,
+        branch_id,
+        role,
+        status_pekerjaan,
+        tanggal_bergabung,
+        gaji_pokok
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     const values = [
         body.name,
+        body.email,
+        body.mobilePhone,
         body.nik,
         body.tempatLahir,
         body.tanggalLahir,
@@ -21,10 +45,8 @@ const insertEmployee =  (body) => {
         body.golonganDarah,
         body.agama,
         body.alamat,
-        body.mobilePhone,
-        body.email,
+        body.branchId,
         body.posisiPekerjaan,
-        body.merchantId,
         body.statusPekerjaan,
         body.tanggalBergabung,
         body.gajiPokok
@@ -32,8 +54,44 @@ const insertEmployee =  (body) => {
     return dbPool.execute(sql, values)
 }
 
+const updateEmployee = (body) => {
+    const sql = `UPDATE users SET name=?, email=?, mobile_phone=?, nik_ktp=?, tempat_lahir=?, tanggal_lahir=?, jenis_kelamin=?, 
+    status_pernikahan=?, golongan_darah=?, agama=?, alamat=?, role=?, status_pekerjaan=?, tanggal_bergabung=?, gaji_pokok=? WHERE id=?`
+    const values = [
+        body.name,
+        body.email,
+        body.mobilePhone,
+        body.nik,
+        body.tempatLahir,
+        body.tanggalLahir,
+        body.jenisKelamin,
+        body.statusPernikahan,
+        body.golonganDarah,
+        body.agama,
+        body.alamat,
+        body.posisiPekerjaan,
+        body.statusPekerjaan,
+        body.tanggalBergabung,
+        body.gajiPokok,
+        body.id
+    ]
+    return dbPool.execute(sql, values)
+}
+
+const updateTemplate = (body) => {
+    const sql = `UPDATE users SET template=? WHERE id= ?`;
+    const values = [
+        body.template,
+        body.id
+    ];
+    return dbPool.execute(sql, values)
+}
+
 module.exports = {
-    getAllEmployees,
+    getAllEmployee,
+    inviteEmployee,
     getEmployee,
     insertEmployee,
+    updateEmployee,
+    updateTemplate
 }
