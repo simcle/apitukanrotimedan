@@ -102,7 +102,7 @@ exports.insertEmployee = async (req, res) => {
                 }
             })
         }
-        res.status(200).json({id: data.trans_id})
+        res.status(200).json({id: id})
     } catch (error) {
         res.status(400).send(error)
     }
@@ -153,7 +153,7 @@ exports.fingerPrint = (req, res) => {
     }
     axios.post('https://developer.fingerspot.io/api/reg_online', data, {
         headers: {
-            Authorization: `Bearer ${token}`
+            Authorization: `Bearer ${apiToken}`
         }
     })
     .then(result => {

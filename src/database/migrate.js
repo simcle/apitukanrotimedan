@@ -62,6 +62,19 @@ const migrate = async () => {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=INNODB`
     await dbPool.execute(branches)
+
+    const attendences = `CREATE TABLE IF NOT EXISTS attendences(
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT,
+        time_in TIME,
+        time_out TIME,
+        scan_date DATE DEFAULT CURRENT_TIMESTAMP,
+        status_scan INT,
+        status VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=INNODB`
+    await dbPool.execute(attendences)
 }
 
 module.exports = migrate
