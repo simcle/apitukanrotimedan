@@ -1,5 +1,26 @@
 const dbPool = require('../config/database');
 
+const countAteendenceSatatus = () => {
+    const today = getDate(new Date())
+    const sql = `SELECT 
+                COUNT(IF(status='Tanpa keterangan', 1, null)) as tanpa_keterangan,
+                COUNT(IF(status='Sakit', 1, null)) as sakit,
+                COUNT(IF(status='Izin', 1, null)) as izin,
+                COUNT(IF(status='Libur', 1, null)) as libur
+                FROM attendences WHERE scan_date='${today}'
+                `
+    return dbPool.execute(sql)
+}
+const getAtttendenceByStatus = (body) => {
+    const status = body
+    const today = getDate(new Date())
+    const sql = `SELECT attendences.*, users.name, users.role, branches.name as cabang FROM attendences 
+    LEFT JOIN users ON attendences.user_id=users.id
+    LEFT JOIN branches ON users.branch_id=branches.id WHERE attendences.scan_date='${today}' AND attendences.status='${status}'`
+
+    return dbPool.execute(sql)
+}
+
 const getAttendences = (body) => {
     const scan_date = getDate(body.scan_date)
     let filter = body.filter
@@ -146,6 +167,8 @@ function getDate (i) {
 }
 
 module.exports = {
+    countAteendenceSatatus,
+    getAtttendenceByStatus,
     getAttendences,
     updateAttendence,
     getReport,

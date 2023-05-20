@@ -14,8 +14,9 @@ migrate()
 
 const authenticateToken = require('./authenticate');
 
-const authRoutes = require('./src/routes/auth');
 const webhook = require('./src/routes/webhook');
+const authRoutes = require('./src/routes/auth');
+const dashboardRoutes = require('./src/routes/dashboard')
 const companyRoutes = require('./src/routes/company');
 const countryRoutes = require('./src/routes/country');
 const branchRoutes = require('./src/routes/branches');
@@ -25,6 +26,7 @@ const attendenceRoutes = require('./src/routes/attendence');
 
 app.use('/webhook', webhook);
 app.use('/auth', authRoutes);
+app.use('/dashboard', authenticateToken, dashboardRoutes);
 app.use('/setting', authenticateToken, companyRoutes);
 app.use('/country', authenticateToken, countryRoutes);
 app.use('/branches', authenticateToken, branchRoutes);
