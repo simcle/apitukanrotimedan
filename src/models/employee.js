@@ -1,4 +1,5 @@
 const dbPool = require('../config/database');
+const moment = require('moment');
 
 const getAllEmployee = () => {
     const sql = `SELECT users.*, branches.name as cabang, branches.cloud_id FROM users RIGHT JOIN branches ON users.branch_id=branches.id WHERE users.is_admin=false`;
@@ -86,12 +87,23 @@ const updateTemplate = (body) => {
     ];
     return dbPool.execute(sql, values)
 }
-
+const resign = (body) => {
+    const sql = `UPDATE users SET is_auth=?, is_active=?, tanggal_keluar=?, updated_at=? WHERE id='${body.id}'`
+    const updatedAt = moment().utc().format('YYYY-MM-DD hh:mm:ss')
+    const values = [
+        false,
+        false,
+        body.tanggal_keluar,
+        updatedAt
+    ]
+    return dbPool.execute(sql, values)
+}
 module.exports = {
     getAllEmployee,
     inviteEmployee,
     getEmployee,
     insertEmployee,
     updateEmployee,
-    updateTemplate
+    updateTemplate,
+    resign
 }

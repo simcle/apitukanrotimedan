@@ -13,6 +13,7 @@ const migrate = async () => {
         branch_id INT,
         is_admin BOOLEAN DEFAULT false,
         is_auth BOOLEAN DEFAULT false,
+        is_active BOOLEAN DEFAULT true,
         role VARCHAR(255),
         status_pekerjaan VARCHAR(255),
         gaji_pokok INT,
@@ -26,7 +27,7 @@ const migrate = async () => {
         golongan_darah VARCHAR(255),
         agama VARCHAR(255),
         alamat VARCHAR(255),
-        template VARCHAR(255),
+        template LONGTEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         UNIQUE (email)

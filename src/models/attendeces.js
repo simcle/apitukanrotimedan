@@ -10,14 +10,14 @@ const getAttendences = (body) => {
         attendences.status, branches.name as cabang FROM users 
         LEFT JOIN branches ON users.branch_id=branches.id 
         LEFT JOIN attendences ON users.id=attendences.user_id 
-        AND attendences.scan_date='${scan_date}' WHERE users.is_admin='false' AND users.branch_id IN (${filter}) ORDER BY -attendences.time_in DESC, status DESC`
+        AND attendences.scan_date='${scan_date}' WHERE users.is_admin=false ANE users.active=true AND users.branch_id IN (${filter}) ORDER BY -attendences.time_in DESC, status DESC`
         return dbPool.execute(sql)
     } else {
         sql = `SELECT users.id as user_id, users.branch_id, users.name, attendences.scan_date, attendences.time_in, attendences.time_out, 
         attendences.status, branches.name as cabang FROM users 
         LEFT JOIN branches ON users.branch_id=branches.id 
         LEFT JOIN attendences ON users.id=attendences.user_id 
-        AND attendences.scan_date='${scan_date}' WHERE users.is_admin='false' ORDER BY -attendences.time_in DESC, status DESC`
+        AND attendences.scan_date='${scan_date}' WHERE users.is_admin=false AND users.is_active=true ORDER BY -attendences.time_in DESC, status DESC`
         return dbPool.execute(sql)
     }
 }
@@ -84,6 +84,34 @@ const getReport = async (body) => {
     }
 }
 
+const getUserAttendence = async (id, body) => {
+    let currentPage = body.page || 1
+    let perPage = body.perPage || 20
+    let totalItems;
+    let sql;
+    const start = getDate(body.start)
+    const end = getDate(body.end)
+    sql = `SELECT COUNT(*) as count FROM attendences WHERE user_id='${id}' AND (scan_date BETWEEN '${start}' AND '${end}')`
+    const [count] = await dbPool.execute(sql);
+    if(count[0].count) {
+        totalItems = count[0].count
+    } else {
+        totalItems = 0
+    } 
+    currentPage = (currentPage -1) * perPage
+    sql = `SELECT * FROM attendences WHERE user_id='${id}' AND (scan_date BETWEEN '${start}' AND '${end}') ORDER BY attendences.scan_date ASC LIMIT ${perPage} OFFSET ${currentPage}`
+    const [data] = await dbPool.execute(sql);
+    const last_page = Math.ceil(totalItems / perPage)
+    return {
+        data: data,
+        pages: {
+            current_page: currentPage +1,
+            last_page: last_page,
+            totalItems: totalItems
+        }
+    }
+}
+
 const downloadReport =  (body) => {
     let filter = body.filter
     const start = getDate(body.start)
@@ -97,6 +125,9 @@ const downloadReport =  (body) => {
     }
     return dbPool.execute(sql)
 }
+
+
+
 
 function getDate (i) {
     let date = new Date(i)
@@ -118,5 +149,6 @@ module.exports = {
     getAttendences,
     updateAttendence,
     getReport,
+    getUserAttendence,
     downloadReport
 }

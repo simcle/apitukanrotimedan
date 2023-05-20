@@ -65,6 +65,12 @@ const deleteToken = (token) => {
     const sql = `UPDATE users SET refresh_token='' WHERE refresh_token='${token}'`
     return dbPool.execute(sql)
 }
+const lostPassword = (email) => {
+    const sql = `SELECT * FROM users WHERE email='${email}' AND is_auth=true`
+    return dbPool.execute(sql)
+}
+
+
 module.exports = {
     getMe,
     getAllusers,
@@ -75,5 +81,6 @@ module.exports = {
     getUser,
     updateToken,
     refreshToken,
-    deleteToken
+    deleteToken,
+    lostPassword
 }

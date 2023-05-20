@@ -1,6 +1,7 @@
 require('dotenv').config()
 const EmployeeModel = require('../models/employee');
-const BranchesModel = require('../models/branches')
+const BranchesModel = require('../models/branches');
+const AttendenceModel = require('../models/attendeces');
 const moment = require('moment');
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
@@ -129,10 +130,11 @@ exports.updateEmployee = async (req, res) => {
                     name: body.name,
                     privilege: 1,
                     password: '',
-                    template: body.template
+                    template: `${body.template}`
                 }
             }
-            const test = await axios.post('https://developer.fingerspot.io/api/set_userinfo', data, {
+            console.log(body.template)
+            axios.post('https://developer.fingerspot.io/api/set_userinfo', data, {
                 headers: {
                     Authorization: `Bearer ${apiToken}`
                 }
@@ -141,6 +143,17 @@ exports.updateEmployee = async (req, res) => {
         res.status(200).json('OK')
     } catch (error) {
         res.status(400).send(error)   
+    }
+}
+
+exports.getAttendence = async (req, res) => {
+    const id = req.params.id;
+    const body =  req.query
+    try {
+        const data = await AttendenceModel.getUserAttendence(id, body)
+        res.status(200).json(data)
+    } catch (error) {
+        res.status(400).send(error)
     }
 }
 
@@ -159,4 +172,16 @@ exports.fingerPrint = (req, res) => {
     .then(result => {
         res.status(200).json(result.data);
     })
+}
+
+exports.resignEmployee = async (req, res) => {
+    const body = req.body
+    let tanggal_keluar = moment().format('YYYY-MM-DD')
+    body.tanggal_keluar = tanggal_keluar
+    try {
+        await EmployeeModel.resign(body)
+        res.status(200).json('OK')
+    } catch (error) {
+        res.status(400).send(error)
+    }
 }
