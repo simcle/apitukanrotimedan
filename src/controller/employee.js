@@ -185,3 +185,13 @@ exports.resignEmployee = async (req, res) => {
         res.status(400).send(error)
     }
 }
+
+exports.activateEmployee = async (req, res) => {
+    const body = req.body
+    try {
+        await EmployeeModel.activate(body)
+        res.status(200).json('OK')
+    } catch (error) {
+        res.status(400).send(error)
+    }
+}

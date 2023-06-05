@@ -3,6 +3,7 @@ const dbPool = require('../config/database');
 const countAteendenceSatatus = () => {
     const today = getDate(new Date())
     const sql = `SELECT 
+                COUNT(IF(status='Masuk', 1, null)) as masuk,
                 COUNT(IF(status='Tanpa keterangan', 1, null)) as tanpa_keterangan,
                 COUNT(IF(status='Sakit', 1, null)) as sakit,
                 COUNT(IF(status='Izin', 1, null)) as izin,

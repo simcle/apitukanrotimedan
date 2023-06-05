@@ -98,6 +98,16 @@ const resign = (body) => {
     ]
     return dbPool.execute(sql, values)
 }
+
+const activate = (body) => {
+    const sql = `UPDATE users SET is_active=?, updated_at=? WHERE id='${body.id}'`
+    const updatedAt = moment().utc().format('YYYY-MM-DD hh:mm:ss')
+    const values = [
+        true,
+        updatedAt
+    ]
+    return dbPool.execute(sql, values)
+}
 module.exports = {
     getAllEmployee,
     inviteEmployee,
@@ -105,5 +115,6 @@ module.exports = {
     insertEmployee,
     updateEmployee,
     updateTemplate,
-    resign
+    resign,
+    activate
 }
