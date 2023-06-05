@@ -31,7 +31,7 @@ const getAttendences = (body) => {
         attendences.status, branches.name as cabang FROM users 
         LEFT JOIN branches ON users.branch_id=branches.id 
         LEFT JOIN attendences ON users.id=attendences.user_id 
-        AND attendences.scan_date='${scan_date}' WHERE users.is_admin=false ANE users.active=true AND users.branch_id IN (${filter}) ORDER BY -attendences.time_in DESC, status DESC`
+        AND attendences.scan_date='${scan_date}' WHERE users.is_admin=false AND users.active=true AND users.branch_id IN (${filter}) ORDER BY -attendences.time_in DESC, status DESC`
         return dbPool.execute(sql)
     } else {
         sql = `SELECT users.id as user_id, users.branch_id, users.name, attendences.scan_date, attendences.time_in, attendences.time_out, 

@@ -20,7 +20,7 @@ exports.webhook = async (req, res) => {
             await EmployeeModel.updateTemplate(body)
         break;
         case 'set_userinfo': 
-            console.log('webhoo.js', data)
+            console.log('webhook.js', data)
         break;
         case 'delete_userinfo':
             console.log('webhook.js','delete_userinfo')
