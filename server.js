@@ -23,6 +23,9 @@ const branchRoutes = require('./src/routes/branches');
 const userRoutes = require('./src/routes/users');
 const employeeRoutes = require('./src/routes/employee');
 const attendenceRoutes = require('./src/routes/attendence');
+const categoryRoutes = require('./src/routes/category');
+const brandRoutes = require('./src/routes/brand');
+const productRoutes = require('./src/routes/product');
 
 app.use('/webhook', webhook);
 app.use('/auth', authRoutes);
@@ -33,6 +36,9 @@ app.use('/branches', authenticateToken, branchRoutes);
 app.use('/users', authenticateToken, userRoutes);
 app.use('/employee', authenticateToken, employeeRoutes);
 app.use('/attendence', authenticateToken, attendenceRoutes);
+app.use('/category', authenticateToken, categoryRoutes);
+app.use('/brand', authenticateToken, brandRoutes);
+app.use('/product', authenticateToken, productRoutes);
 
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {

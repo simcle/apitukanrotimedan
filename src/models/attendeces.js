@@ -92,14 +92,14 @@ const getReport = async (body) => {
     if(filter) {
         sql2 = `SELECT attendences.*, users.name, branches.name as cabang FROM attendences LEFT JOIN users ON attendences.user_id=users.id LEFT JOIN branches ON users.branch_id=branches.id WHERE (scan_date BETWEEN '${start}' AND '${end}') AND users.branch_id IN (${filter}) ORDER BY attendences.scan_date ASC LIMIT ${perPage} OFFSET ${currentPage}`
     } else {
-        sql2 = `SELECT attendences.*, users.name, branches.name as cabang FROM attendences LEFT JOIN users ON attendences.user_id=users.id LEFT JOIN branches ON users.branch_id=branches.id WHERE (scan_date BETWEEN '${start}' AND '${end}') ORDER BY attendences.scan_date ASC LIMIT ${perPage} OFFSET ${currentPage}`
+        sql2 = `SELECT attendences.*, users.name, branches.name as cabang FROM attendences LEFT JOIN users ON attendences.user_id=users.id LEFT JOIN branches ON users.branch_id=branches.id WHERE (scan_date BETWEEN '${start}' AND '${end}') ORDER BY attendences.scan_date ASC LIMIT ${perPage} OFFSET ${(currentPage -1) * perPage}`
     }
     const [data] = await dbPool.execute(sql2)
     const last_page = Math.ceil(totalItems / perPage)
     return {
         data: data,
         pages: {
-            current_page: currentPage +1,
+            current_page: currentPage,
             last_page: last_page,
             totalItems: totalItems
         }
@@ -121,13 +121,13 @@ const getUserAttendence = async (id, body) => {
         totalItems = 0
     } 
     currentPage = (currentPage -1) * perPage
-    sql = `SELECT * FROM attendences WHERE user_id='${id}' AND (scan_date BETWEEN '${start}' AND '${end}') ORDER BY attendences.scan_date ASC LIMIT ${perPage} OFFSET ${currentPage}`
+    sql = `SELECT * FROM attendences WHERE user_id='${id}' AND (scan_date BETWEEN '${start}' AND '${end}') ORDER BY attendences.scan_date ASC LIMIT ${perPage} OFFSET ${(currentPage -1) * perPage}`
     const [data] = await dbPool.execute(sql);
     const last_page = Math.ceil(totalItems / perPage)
     return {
         data: data,
         pages: {
-            current_page: currentPage +1,
+            current_page: currentPage,
             last_page: last_page,
             totalItems: totalItems
         }

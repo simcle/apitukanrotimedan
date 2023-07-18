@@ -76,6 +76,46 @@ const migrate = async () => {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=INNODB`
     await dbPool.execute(attendences)
+
+    const categories = `CREATE TABLE IF NOT EXISTS categories(
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR (255),
+        description VARCHAR(255) DEFAULT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=INNODB`
+    await dbPool.execute(categories)
+
+    const brands = `CREATE TABLE IF NOT EXISTS brands(
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR (255),
+        description VARCHAR(255) DEFAULT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=INNODB`
+    await dbPool.execute(brands)
+
+    const products = `CREATE TABLE IF NOT EXISTS products(
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255),
+        brand_id INT DEFAULT NULL,
+        category_id INT DEFAULT NULL,
+        description LONGTEXT DEFAULT NULL,
+        image VARCHAR(255)
+    ) ENGINE=INNODB`
+    await dbPool.execute(products)
+
+    const item_variants = `CREATE TABLE IF NOT EXISTS item_variants(
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        product_id INT,
+        name VARCHAR(255),
+        sku VARCHAR(255),
+        price INT DEFAULT 0,
+        cogs INT DEFAULT 0,
+        in_stock INT DEFAULT NULL,
+        stock_alert INT DEFAULT NULL
+    ) ENGINE=INNODB`
+    await dbPool.execute(item_variants)
 }
 
 module.exports = migrate
