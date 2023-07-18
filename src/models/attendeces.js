@@ -66,7 +66,7 @@ const updateAttendence = async (body) => {
 }
 
 const getReport = async (body) => {
-    let currentPage = body.page || 1
+    let currentPage = parseInt(body.page) || 1
     let perPage = body.perPage || 20
     let totalItems;
     let filter = body.filter
@@ -74,7 +74,6 @@ const getReport = async (body) => {
     let sql2;
     const start = getDate(body.start)
     const end = getDate(body.end)
-    
     if(filter) {
         filter = `'${filter.join("','")}'`
         sql = `SELECT COUNT(attendences.id) as count FROM attendences LEFT JOIN users ON attendences.user_id=users.id WHERE (scan_date BETWEEN '${start}' AND '${end}') AND users.branch_id IN (${filter})`
@@ -87,10 +86,9 @@ const getReport = async (body) => {
     } else {
         totalItems = 0
     } 
-    currentPage = (currentPage -1) * perPage
 
     if(filter) {
-        sql2 = `SELECT attendences.*, users.name, branches.name as cabang FROM attendences LEFT JOIN users ON attendences.user_id=users.id LEFT JOIN branches ON users.branch_id=branches.id WHERE (scan_date BETWEEN '${start}' AND '${end}') AND users.branch_id IN (${filter}) ORDER BY attendences.scan_date ASC LIMIT ${perPage} OFFSET ${currentPage}`
+        sql2 = `SELECT attendences.*, users.name, branches.name as cabang FROM attendences LEFT JOIN users ON attendences.user_id=users.id LEFT JOIN branches ON users.branch_id=branches.id WHERE (scan_date BETWEEN '${start}' AND '${end}') AND users.branch_id IN (${filter}) ORDER BY attendences.scan_date ASC LIMIT ${perPage} OFFSET ${(currentPage -1) * perPage}`
     } else {
         sql2 = `SELECT attendences.*, users.name, branches.name as cabang FROM attendences LEFT JOIN users ON attendences.user_id=users.id LEFT JOIN branches ON users.branch_id=branches.id WHERE (scan_date BETWEEN '${start}' AND '${end}') ORDER BY attendences.scan_date ASC LIMIT ${perPage} OFFSET ${(currentPage -1) * perPage}`
     }
