@@ -49,7 +49,7 @@ exports.UserLogin = async (req, res) => {
                     return res.status(400).send('Email tidak ditemukan')
                 }
                 if( await bcrypt.compare(password, result.password)) {
-                    const user = {id: result.id, role: result.role}
+                    const user = {id: result.id, branch_id: result.branch_id, role: result.role}
                     const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn: tokenExpired})
                     const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET)
                     const payload = {
@@ -58,6 +58,7 @@ exports.UserLogin = async (req, res) => {
                     }
                     const data = {
                         id: result.id,
+                        branch_id: result.branch_id,
                         name: result.name,
                         email: result.email,
                         role: result.role
@@ -87,7 +88,7 @@ exports.RefreshToken = async (req, res) => {
     if(!result) return res.sendStatus(403);
     jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
         if(err) return res.sendStatus(403);
-        const accessToken = jwt.sign({id: user.id, role: user.role}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: tokenExpired});
+        const accessToken = jwt.sign({id: user.id, branch_id: user.branch_id, role: user.role}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: tokenExpired});
         res.json({accessToken: accessToken});
     })
 }

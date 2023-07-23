@@ -116,6 +116,56 @@ const migrate = async () => {
         stock_alert INT DEFAULT NULL
     ) ENGINE=INNODB`
     await dbPool.execute(item_variants)
+
+    const cusotmers = `CREATE TABLE IF NOT EXISTS customers(
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        code VARCHAR(20),
+        name VARCHAR(255),
+        telepon VARCHAR(18),
+        alamat VARCHAR(255),
+        catatan VARCHAR(255),
+        branch_id INT,
+        user_id INT
+    ) ENGINE=INNODB`
+    await dbPool.execute(cusotmers)
+
+    const sales = `CREATE TABLE IF NOT EXISTS sales (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        sales_no VARCHAR(255),
+        customer_id INT DEFAULT NULL,
+        customer VARCHAR(255),
+        total INT,
+        payment_method VARCHAR(255),
+        payment_amount INT DEFAULT NULL,
+        bank_id INT DEFAULT NULL,
+        change_amount INT DEFAULT NULL,
+        status VARCHAR(255),
+        branch_id INT,
+        user_id INT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=INNODB`
+    await dbPool.execute(sales)
+
+    const sale_details = `CREATE TABLE IF NOT EXISTS sales_details (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        sales_id INT,
+        variant_id INT,
+        cogs INT DEFAULT NULL,
+        price INT,
+        qty INT,
+        total INT
+    ) ENGINE=INNODB`
+    await dbPool.execute(sale_details)
+
+    const payment_methods = `CREATE TABLE IF NOT EXISTS payment_methods (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255),
+        type VARCHAR(255),
+        provider VARCHAR(255),
+        status BOOLEAN DEFAULT true
+    ) ENGINE=INNODB`
+    await dbPool.execute(payment_methods); 
 }
 
 module.exports = migrate

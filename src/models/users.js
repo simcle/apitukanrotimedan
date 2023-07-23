@@ -6,7 +6,7 @@ const getAllusers = () => {
     return dbPool.execute(sql)
 }
 const getMe = (id) => {
-    const sql = `SELECT id, name, email, role FROM users WHERE id='${id}'`
+    const sql = `SELECT users.id, users.name, users.email, users.role, branches.name as branch FROM users LEFT JOIN branches ON branches.id = users.branch_id WHERE users.id='${id}'`
     return dbPool.execute(sql)
 }
 const registerUser = (body) => {
