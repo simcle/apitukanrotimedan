@@ -5,6 +5,7 @@ const salesController = require('../controller/sales');
 
 router.post('/', salesController.insertSales);
 router.get('/draft', salesController.getDraft);
+router.get('/branch', salesController.getSalesByBranch);
 router.put('/', salesController.updateSales);
 router.delete('/:id', salesController.deleteSales);
 

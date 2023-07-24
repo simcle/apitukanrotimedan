@@ -9,6 +9,15 @@ exports.getDraft = async (req, res) => {
         res.status(400).send(error)
     }
 }
+exports.getSalesByBranch = async (req, res) => {
+    const body = req.user.branch_id
+    try {
+        const data = await SalesModel.getSalesBayBranch(body)
+        res.status(200).json(data)
+    } catch (error) {
+        res.status(400).send(error)
+    }
+}
 exports.insertSales = async (req, res) => {
     const branch_id = req.user.branch_id
     const user_id = req.user.id

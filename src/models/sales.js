@@ -16,6 +16,24 @@ const getDraft = async (body) => {
     return sales
 }
 
+const getSalesBayBranch = async (body) => {
+    const branch_id = body
+    const today = getDate(new Date())
+    let sql = `SELECT sales.*, users.name as kasir FROM sales LEFT JOIN users ON users.id = sales.user_id WHERE sales.branch_id=${branch_id} AND DATE(sales.created_at) = '${today}' AND sales.status = 'Posted' ORDER BY sales.id DESC`
+    const [sales] = await dbPool.execute(sql)
+    for (let i = 0; i < sales.length; i++) {
+        const saleId = sales[i].id
+        sales[i].items = []
+        let sql = `SELECT sales_details.*, item_variants.id as variant_id, item_variants.name as name, products.id as product_id, products.name as product FROM sales_details 
+        LEFT JOIN item_variants ON item_variants.id = sales_details.variant_id 
+        LEFT JOIN products ON products.id = item_variants.product_id 
+        WHERE sales_details.sales_id = ${saleId}`
+        const [details] = await dbPool.execute(sql)
+        sales[i].items = details
+    }
+    return sales
+}
+
 const insertSales = async (body) => {
     const items = body.items
     let sql = `INSERT INTO sales (
@@ -125,6 +143,7 @@ const deleteSales = async (id) => {
     await dbPool.execute(sql)
     return
 }
+
 function getDate (i) {
     let date = new Date(i)
     let d = date.getDate()
@@ -141,25 +160,11 @@ function getDate (i) {
     return`${y}-${m}-${d}`
 }
 
-function generateDate() {
-    let date = new Date()
-    let d = date.getDate()
-    let m = date.getMonth() +1
-    let y = date.getFullYear().toString().substr(-2)
-    d = checktime(d)
-    m = checktime(m)
-    function checktime (i) {
-        if(i < 10) {
-            return i = `0${i}`
-        }
-        return i
-    }
-    return`${y}${m}${d}`
-}
 
 module.exports = {
-    insertSales,
     getDraft,
+    getSalesBayBranch,
+    insertSales,
     updateSales,
     deleteSales
 }
