@@ -13,12 +13,22 @@ const fileStorage = multer.diskStorage({
     }
 });
 
+const importStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'public/file')
+    },
+    filename: (req, file, cb) => {
+        cb(null, 'item.csv')
+    }
+})
 const upload = multer({storage: fileStorage});
+const fileImport = multer({storage: importStorage});
 const productController = require('../controller/product');
 
 router.get('/filter', productController.getFilter);
 router.get('/', productController.getAllProduct);
 router.post('/', upload.single('image'), productController.insertProduct);
 router.put('/', upload.single('image'), productController.updateProduct);
+router.post('/import', fileImport.single('file'), productController.fileImport);
 
 module.exports = router;

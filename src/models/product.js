@@ -54,7 +54,62 @@ const getAllProduct = async (body) => {
         }
     }
 }
-
+const importPorduct = async (body) => {
+    let sql;
+    let values;
+    let category_id;
+    let brand_id;
+    let product_id;
+    for(let i = 0; i < body.length; i++) {
+        const el = body[i]
+        sql = `SELECT * FROM categories WHERE name=?`
+        values = [el.category]
+        let [category] = await dbPool.execute(sql, values)
+        if(category.length > 0) {
+            category_id = category[0].id
+        } else {
+            sql = `INSERT INTO categories (name) VALUES (?)`
+            values = [el.category]
+            let [data] = await dbPool.execute(sql, values)
+            category_id = data.insertId
+        } 
+        sql = `SELECT * FROM brands WHERE name = '${el.brand}'`
+        values = [el.brand]
+        let [brand] = await dbPool.execute(sql, values)
+        if(brand.length > 0) {
+            brand_id = brand[0].id
+        } else {
+            sql = `INSERT INTO brands (name) VALUES(?)`
+            values = [el.brand]
+            let [data] = await dbPool.execute(sql, values)
+            brand_id = data.insertId
+        }
+        sql = `SELECT * FROM products WHERE name = ?`
+        values = [el.name]
+        let [product] = await dbPool.execute(sql, values)
+        if(product.length > 0) {
+            console.log('ready')
+        } else {
+            sql = `INSERT INTO products (name, category_id, brand_id) VALUES (?, ?, ?)`
+            values = [el.name, category_id, brand_id]
+            let [data] = await dbPool.execute(sql, values)
+            product_id = data.insertId
+            for(let i = 0; i < el.items.length; i++) {
+                const item = el.items[i]
+                let sku = await generateSku()
+                try {
+                    sql = `INSERT INTO item_variants (product_id, name, sku, price) VALUES (?, ?, ?, ?)`
+                    values = [product_id, item.name, sku, item.price]
+                    await dbPool.execute(sql, values)
+                } catch (error) {
+                    console.log(error)
+                }
+                
+            }
+        }
+    }
+    return
+}
 const insertProduct = async (body) => {
     const variants = body.item_variants
     let sql = `INSERT INTO products (
@@ -188,6 +243,7 @@ async function generateSku () {
 module.exports = {
     getFilter,
     getAllProduct,
+    importPorduct,
     insertProduct,
     updateProduct
 }
