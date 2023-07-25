@@ -133,7 +133,6 @@ exports.updateEmployee = async (req, res) => {
                     template: `${body.template}`
                 }
             }
-            console.log(body.template)
             axios.post('https://developer.fingerspot.io/api/set_userinfo', data, {
                 headers: {
                     Authorization: `Bearer ${apiToken}`
@@ -193,5 +192,29 @@ exports.activateEmployee = async (req, res) => {
         res.status(200).json('OK')
     } catch (error) {
         res.status(400).send(error)
+    }
+}
+
+exports.deleteEmployee = async (req, res) => {
+    const id = req.params.id
+    try {
+       const [user] = await EmployeeModel.getEmployee(id)
+       const data = {
+        trans_id: id,
+        cloud_id: user[0].cloud_id,
+        pid: id
+       } 
+       await EmployeeModel.deleteEmployee(id)
+
+        axios.post('https://developer.fingerspot.io/api/reg_online', data, {
+            headers: {
+                Authorization: `Bearer ${apiToken}`
+            }
+        })
+        .then(result => {
+            res.status(200).json(result.data);
+        })
+    } catch (error) {
+        
     }
 }

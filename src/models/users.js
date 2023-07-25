@@ -70,7 +70,6 @@ const lostPassword = (email) => {
     return dbPool.execute(sql)
 }
 
-
 module.exports = {
     getMe,
     getAllusers,

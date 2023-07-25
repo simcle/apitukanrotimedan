@@ -108,6 +108,13 @@ const activate = (body) => {
     ]
     return dbPool.execute(sql, values)
 }
+
+const deleteEmployee = async (id) => {
+    let sql = `DELETE FROM attendences WHERE user_id='${id}'`
+    await dbPool.execute(sql)
+    sql = `DELETE FROM users WHERE id=${id}`
+    return dbPool.execute(sql)
+}
 module.exports = {
     getAllEmployee,
     inviteEmployee,
@@ -116,5 +123,6 @@ module.exports = {
     updateEmployee,
     updateTemplate,
     resign,
-    activate
+    activate,
+    deleteEmployee
 }
