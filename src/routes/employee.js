@@ -15,4 +15,6 @@ router.post('/fingerprint', employeeController.fingerPrint);
 router.post('/resign', employeeController.resignEmployee);
 router.post('/activate', employeeController.activateEmployee);
 router.delete('/delete/:id', employeeController.deleteEmployee)
+router.post('/undang', employeeController.undangEmployee);
+router.delete('/user/:id', employeeController.deleteEmployeeUser);
 module.exports = router

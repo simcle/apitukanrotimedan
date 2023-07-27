@@ -6,8 +6,33 @@ const getAllEmployee = () => {
     return dbPool.execute(sql)
 }
 
+const undangEmployee = async (body) => {
+    const users = body
+    for (let i = 0; i < users.length; i++) {
+        const el = users[i]
+        let sql = `UPDATE users SET is_auth=?, password=? WHERE id=?`
+        let values = [
+            true,
+            el.password,
+            el.id
+        ]
+        await dbPool.execute(sql, values)
+    }
+    return
+}
+
+const deleteEmployeeUser =  (id) => {
+    let sql = `UPDATE users SET is_auth=?, password=? WHERE id=?`
+    let values = [
+        false,
+        null,
+        id
+    ]
+    return dbPool.execute(sql, values)
+}
+
 const inviteEmployee = () => {
-    const sql = `SELECT users.*, branches.name as cabang FROM users RIGHT JOIN branches on users.branch_id=branches.id WHERE is_auth=false`;
+    const sql = `SELECT users.*, branches.name as cabang FROM users RIGHT JOIN branches on users.branch_id=branches.id WHERE is_auth=false AND is_active=true`;
     return dbPool.execute(sql)
 }
 
@@ -117,6 +142,8 @@ const deleteEmployee = async (id) => {
 }
 module.exports = {
     getAllEmployee,
+    undangEmployee,
+    deleteEmployeeUser,
     inviteEmployee,
     getEmployee,
     insertEmployee,

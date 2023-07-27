@@ -4,6 +4,7 @@ const BranchesModel = require('../models/branches');
 const AttendenceModel = require('../models/attendeces');
 const moment = require('moment');
 const axios = require('axios');
+const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const sendEmail = require('../config/mailer');
 const apiToken = process.env.API_TOKEN
@@ -17,6 +18,30 @@ exports.getAllEmployee = async (req, res) => {
     }
 }
 
+exports.undangEmployee = async (req, res) => {
+    const body = []
+    for (let i = 0; i < req.body.employees.length; i++) {
+        const user = req.body.employees[i]
+        const hashPassword = await bcrypt.hash(user.password, 10);
+        body.push({id: user.id, password: hashPassword})
+    }
+    try {
+        await EmployeeModel.undangEmployee(body)
+        res.status(200).json('OK')
+    } catch (error) {
+        res.status(400).send(error)
+    }
+}
+
+exports.deleteEmployeeUser = async (req, res) => {
+    const id = req.params.id
+    try {
+        await EmployeeModel.deleteEmployeeUser(id)
+        res.status(200).json('OK')
+    } catch (error) {
+        res.status(400).send(error)
+    }
+}
 exports.inviteEmployee = async (req, res) => {
     try {
         const [data] = await EmployeeModel.inviteEmployee()
