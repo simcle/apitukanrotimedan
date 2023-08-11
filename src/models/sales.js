@@ -5,7 +5,7 @@ const summarySales = async () => {
     let stats = []
     sql = `SELECT SUM(sales.total) as total, sales.branch_id, branches.name as outlet FROM sales 
     LEFT JOIN branches ON branches.id = sales.branch_id
-    WHERE sales.created_at >= DATE(NOW() - INTERVAL 7 DAY) 
+    WHERE sales.created_at >= DATE(NOW() - INTERVAL 7 DAY) AND sales.branch_id IS NOT NULL
     GROUP BY sales.branch_id`
     let colors = ['#4B5563','#DC2626','#F59E0B','#10B981','#8B5CF6','#3B82F6','#84cc16']
     let labels= []
@@ -58,21 +58,21 @@ const summarySales = async () => {
         }
         return i
     }
-    sql = `SELECT COALESCE(SUM(total), 0) as today FROM sales WHERE DATE(created_at) = CURDATE()`
+    sql = `SELECT COALESCE(SUM(total), 0) as today FROM sales WHERE DATE(created_at) = CURDATE() AND branch_id IS NOT NULL `
     const [totalToday] = await dbPool.execute(sql)
-    sql = `SELECT COALESCE(SUM(total), 0) as yesterday FROM sales WHERE DATE(created_at) = CURRENT_DATE()-1`
+    sql = `SELECT COALESCE(SUM(total), 0) as yesterday FROM sales WHERE DATE(created_at) = CURRENT_DATE()-1 AND branch_id IS NOT NULL`
     const [totalYesterday] = await dbPool.execute(sql)
-    sql = `SELECT COUNT(*) as today FROM sales WHERE DATE(created_at) = CURDATE()`
+    sql = `SELECT COUNT(*) as today FROM sales WHERE DATE(created_at) = CURDATE() AND branch_id IS NOT NULL`
     const [countToday] = await dbPool.execute(sql)
-    sql = `SELECT COUNT(*) as yesterday FROM sales WHERE DATE(created_at) = CURRENT_DATE()-1`
+    sql = `SELECT COUNT(*) as yesterday FROM sales WHERE DATE(created_at) = CURRENT_DATE()-1 AND branch_id IS NOT NULL`
     const [countYesterday] = await dbPool.execute(sql)
     sql = `SELECT COALESCE(SUM(sales_details.qty), 0) as today FROM sales 
         LEFT JOIN sales_details ON sales_details.sales_id = sales.id
-        WHERE DATE(sales.created_at) = CURDATE()`
+        WHERE DATE(sales.created_at) = CURDATE() AND sales.branch_id IS NOT NULL`
     const [qtyToday] = await dbPool.execute(sql)
     sql = `SELECT COALESCE(SUM(sales_details.qty), 0) as yesterday FROM sales 
         LEFT JOIN sales_details ON sales_details.sales_id = sales.id
-        WHERE DATE(sales.created_at) = CURRENT_DATE()-1`
+        WHERE DATE(sales.created_at) = CURRENT_DATE()-1 AND sales.branch_id IS NOT NULL`
     const[qtyYesterday] = await dbPool.execute(sql)
     
     let data = {
@@ -98,9 +98,9 @@ const getAllsales = async (body) => {
     const end = getDate(body.end)
     if(filter) {
         filter = `'${filter.join("','")}'`
-        sql = `SELECT COUNT(*) as count FROM sales WHERE (DATE(created_at) BETWEEN '${start}' AND '${end}') AND status='Posted' AND branch_id IN (${filter})`
+        sql = `SELECT COUNT(*) as count FROM sales WHERE (DATE(created_at) BETWEEN '${start}' AND '${end}') AND status='Posted' AND branch_id IN (${filter}) AND branch_id IS NOT NULL`
     } else {
-        sql = `SELECT COUNT(*) as count FROM sales WHERE (DATE(created_at) BETWEEN '${start}' AND '${end}') AND status='Posted'`   
+        sql = `SELECT COUNT(*) as count FROM sales WHERE (DATE(created_at) BETWEEN '${start}' AND '${end}') AND status='Posted' AND branch_id IS NOT NULL`   
     }
     const [count] = await dbPool.execute(sql)
     if(count[0].count) {
@@ -112,12 +112,12 @@ const getAllsales = async (body) => {
         sql = `SELECT sales.*, branches.name as outlet, users.name as kasir FROM sales 
         LEFT JOIN users ON users.id=sales.user_id
         LEFT JOIN branches ON branches.id=sales.branch_id
-        WHERE (DATE(sales.created_at) BETWEEN '${start}' AND '${end}') AND status='Posted' AND sales.branch_id IN (${filter}) ORDER BY sales.created_at ASC LIMIT ${perPage} OFFSET ${(currentPage -1) * perPage}`
+        WHERE (DATE(sales.created_at) BETWEEN '${start}' AND '${end}') AND status='Posted' AND sales.branch_id IN (${filter}) AND sales.branch_id IS NOT NULL ORDER BY sales.created_at ASC LIMIT ${perPage} OFFSET ${(currentPage -1) * perPage}`
     } else {
         sql = `SELECT sales.*, branches.name as outlet, users.name as kasir FROM sales 
         LEFT JOIN users ON users.id=sales.user_id
         LEFT JOIN branches ON branches.id=sales.branch_id
-        WHERE (DATE(sales.created_at) BETWEEN '${start}' AND '${end}') AND status='Posted' ORDER BY sales.created_at ASC LIMIT ${perPage} OFFSET ${(currentPage -1) * perPage}`
+        WHERE (DATE(sales.created_at) BETWEEN '${start}' AND '${end}') AND status='Posted' AND sales.branch_id IS NOT NULL ORDER BY sales.created_at ASC LIMIT ${perPage} OFFSET ${(currentPage -1) * perPage}`
     }
     const [sales] = await dbPool.execute(sql)
     for (let i = 0; i < sales.length; i++) {
