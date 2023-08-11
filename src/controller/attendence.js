@@ -27,29 +27,29 @@ exports.downloadAttendence = async (req, res) => {
     const end = moment(body.end).format('DD/MM/YYYY')
     const [data] = await AttendenceModel.downloadReport(body)
      // EXCEL
-     let workbook = new excel.Workbook()
-     let worksheet = workbook.addWorksheet('Laporan')
-     worksheet.columns = [
-         {key: 'scan_date', width: 25},
-         {key: 'name', width: 25},
-         {key: 'cabang',  width: 25},
-         {key: 'time_in',  width: 10},
-         {key: 'time_out',  width: 10},
-         {key: 'status',  width: 10},
-     ]
-     worksheet.getRow(1).values = ['Laporan absensi', `dari ${start} sampai ${end}`]
-     worksheet.getRow(3).values = ['Tanggal', 'Nama karywan', 'Cabang', 'Jam masuk', 'Jam pulang', 'Keterangan']
-     worksheet.addRows(data)
-     res.setHeader(
-         "Content-Type",
-         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-     );
-     res.setHeader(
-         "Content-Disposition",
-         "attachment; filename=" + "tutorials.xlsx"
-     );
-     await workbook.xlsx.write(res);
-     res.status(200).end();
+    let workbook = new excel.Workbook()
+    let worksheet = workbook.addWorksheet('Laporan')
+    worksheet.columns = [
+        {key: 'scan_date', width: 25},
+        {key: 'name', width: 25},
+        {key: 'cabang',  width: 25},
+        {key: 'time_in',  width: 10},
+        {key: 'time_out',  width: 10},
+        {key: 'status',  width: 10},
+    ]
+    worksheet.getRow(1).values = ['Laporan absensi', `dari ${start} sampai ${end}`]
+    worksheet.getRow(3).values = ['Tanggal', 'Nama karywan', 'Cabang', 'Jam masuk', 'Jam pulang', 'Keterangan']
+    worksheet.addRows(data)
+    res.setHeader(
+        "Content-Type",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader(
+        "Content-Disposition",
+        "attachment; filename=" + "tutorials.xlsx"
+    );
+    await workbook.xlsx.write(res);
+    res.status(200).end();
 }
 exports.updateAttendence = async (req, res) => {
     const body = req.body

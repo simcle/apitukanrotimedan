@@ -146,9 +146,6 @@ const downloadReport =  (body) => {
     return dbPool.execute(sql)
 }
 
-
-
-
 function getDate (i) {
     let date = new Date(i)
     let d = date.getDate()
