@@ -27,6 +27,7 @@ const productController = require('../controller/product');
 
 router.get('/filter', productController.getFilter);
 router.get('/', productController.getAllProduct);
+router.get('/detail/:id', productController.getDetailProduct);
 router.post('/', upload.single('image'), productController.insertProduct);
 router.put('/', upload.single('image'), productController.updateProduct);
 router.post('/import', fileImport.single('file'), productController.fileImport);

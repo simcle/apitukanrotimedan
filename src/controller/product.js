@@ -3,6 +3,8 @@ const path = require('path');
 const sharp = require('sharp');
 const Excel = require('exceljs');
 const ProdcutModel = require('../models/product');
+
+
 exports.getFilter = async (req, res) => {
     try {
         const data = await ProdcutModel.getFilter()
@@ -21,6 +23,16 @@ exports.getAllProduct = async (req, res) => {
         res.status(400).send(error)
     }
 }
+exports.getDetailProduct = async (req, res) => {
+    const body = req.params.id
+    try {
+        const data = await ProdcutModel.getDeatilProduct(body);
+        res.status(200).json(data)
+    } catch (error) {
+        res.status(400).send(error)
+    }
+    
+}   
 exports.fileImport = async (req, res) => {
     let workbook = new Excel.Workbook()
     await workbook.csv.readFile('./public/file/item.csv')

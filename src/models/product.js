@@ -54,6 +54,22 @@ const getAllProduct = async (body) => {
         }
     }
 }
+const getDeatilProduct = async (body) => {
+    const id = body
+    let sql = `SELECT products.*, categories.name as category, brands.name as brand FROM products
+    LEFT JOIN categories ON categories.id=products.category_id 
+    LEFT JOIN brands ON brands.id = products.brand_id
+    WHERE products.id= ${id}`
+    const [data] = await dbPool.execute(sql);
+    data[0].item_variants = []
+    sql =`SELECT * FROM item_variants WHERE product_id=${id}`
+    const [variant] = await dbPool.execute(sql)
+    for (let i = 0; i < variant.length; i++) {
+        variant[i].qty = 10;
+    }
+    data[0].item_variants = variant
+    return data[0]
+}
 const importPorduct = async (body) => {
     let sql;
     let values;
@@ -155,6 +171,7 @@ const insertProduct = async (body) => {
 }
 
 const updateProduct = async (body) => {
+    
     const variants = body.item_variants
     let sql;
     if(body.image) {
@@ -240,10 +257,12 @@ async function generateSku () {
     }
     return sku
 }
+
 module.exports = {
     getFilter,
     getAllProduct,
+    getDeatilProduct,
     importPorduct,
     insertProduct,
-    updateProduct
+    updateProduct,
 }
