@@ -166,6 +166,14 @@ const migrate = async () => {
         status BOOLEAN DEFAULT true
     ) ENGINE=INNODB`
     await dbPool.execute(payment_methods); 
+
+    const printer = `CREATE TABLE IF NOT EXISTS printers (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255),
+        address VARCHAR(255),
+        branch_id INT
+    ) ENGINE=INNODB`
+    await dbPool.execute(printer)
 }
 
 module.exports = migrate

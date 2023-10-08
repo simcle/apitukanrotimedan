@@ -30,6 +30,7 @@ const itemsRoutes = require('./src/routes/items');
 const customerRoutes = require('./src/routes/customer');
 const saleRoutes = require('./src/routes/sales');
 const paymentMethodRoutes = require('./src/routes/paymentMethod');
+const printerRoutes = require('./src/routes/printer');
 
 app.use('/webhook', webhook);
 app.use('/auth', authRoutes);
@@ -47,6 +48,7 @@ app.use('/items', authenticateToken, itemsRoutes);
 app.use('/customer', authenticateToken, customerRoutes);
 app.use('/sales', authenticateToken, saleRoutes);
 app.use('/payment-method', authenticateToken, paymentMethodRoutes);
+app.use('/printer', authenticateToken, printerRoutes);
 
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
