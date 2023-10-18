@@ -12,7 +12,16 @@ const getItems = (body) => {
     return dbPool.execute(sql)
 }
 
+const deleteItem = async (id) => {
+    let sql;
+    sql = `DELETE FROM products WHERE id='${id}'`
+    await dbPool.execute(sql)
+    sql = `DELETE FROM item_variants WHERE product_id='${id}'`
+    return dbPool.execute(sql)
+}
+
 module.exports = {
     getSku,
-    getItems
+    getItems,
+    deleteItem
 }

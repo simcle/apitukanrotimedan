@@ -19,3 +19,12 @@ exports.getItems = async (req, res) => {
         res.status(400).send(error)  
     }
 }
+exports.deleteItem = async (req, res) => {
+    const id = req.params.id
+    try {
+        await ItemsModel.deleteItem(id)
+        res.status(200).json('OK')
+    } catch (error) {
+        res.status(400).send(error)
+    }   
+}
