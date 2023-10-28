@@ -41,8 +41,15 @@ const getAllProduct = async (body) => {
         const productId = data[i].id 
         data[i].item_variants = []
         sql = `SELECT * FROM item_variants WHERE product_id=${productId}`
-        const [variant] = await dbPool.execute(sql)
-        data[i].item_variants = variant
+        const [variants] = await dbPool.execute(sql)
+        // data[i].item_variants = variants
+        for(let v = 0; v < variants.length; v++) {
+            const variant = variants[v]
+            data[i].item_variants.push({id: variant.id, product_id: variant.product_id, name: variant.name, sku: variant.sku, prices: [], cogs: variant.cogs, in_stock: variant.in_stock, stock_alert: variant.stock_alert})
+            sql = `SELECT * FROM item_prices WHERE variant_id = ${variant.id}`
+            const [itemPrices] = await dbPool.execute(sql)
+            data[i].item_variants[v].prices = itemPrices
+        }
     }
     const last_page = Math.ceil(totalItems / perPage)
     return {
@@ -152,26 +159,39 @@ const insertProduct = async (body) => {
             product_id,
             name,
             sku,
-            price,
             cogs,
             in_stock,
             stock_alert
-        ) VALUES (?, ?, ?, ?, ?, ?, ?)`
+        ) VALUES (?, ?, ?, ?, ?, ?)`
         let values = [
             insertId,
             variant.name,
             sku,
-            variant.price,
             variant.cogs,
             variant.in_stock,
             variant.stock_alert
         ]
-        await dbPool.execute(sql, values)
+        const [insertVariantId] = await dbPool.execute(sql, values)
+        const variantId = insertVariantId.insertId
+        const prices = variant.prices
+        for(let i = 0; i < prices.length; i++) {
+            const price = prices[i]
+            const sql = `INSERT INTO item_prices(
+                variant_id,
+                branch_id,
+                price
+            ) VALUES (?, ?, ?)`
+            let values = [
+                variantId,
+                price.branch_id,
+                price.price
+            ]
+            await dbPool.execute(sql, values)
+        }
     }
 }
 
 const updateProduct = async (body) => {
-    
     const variants = body.item_variants
     let sql;
     if(body.image) {
@@ -194,37 +214,74 @@ const updateProduct = async (body) => {
     await dbPool.execute(sql, values)
     for(let i=0; i < variants.length; i++) {
         const el = variants[i]
+        const prices = el.prices
         if(el.id) {
-            sql = `UPDATE item_variants SET name=?, price=?, cogs=?, stock_alert=? WHERE id=?`
+            sql = `UPDATE item_variants SET name=?, cogs=?, stock_alert=? WHERE id=?`
             let values = [
                 el.name,
-                el.price,
                 el.cogs,
                 el.stock_alert,
                 el.id
             ]
             await dbPool.execute(sql, values)
+            for(let p = 0; p < prices.length; p++) {
+                const el = prices[p]
+                if(el.id) {
+                    sql = `UPDATE item_prices SET price=? WHERE id=?`
+                    let values = [
+                        el.price,
+                        el.id
+                    ]
+                    await dbPool.execute(sql, values)
+                } else {
+                    sql = `INSERT INTO item_prices(
+                        variant_id,
+                        branch_id,
+                        price
+                    ) VALUES (?, ?, ?)`
+                    let values = [
+                        el.variant_id,
+                        el.branch_id,
+                        el.price
+                    ]
+                    await dbPool.execute(sql, values)
+                }
+            }
         } else {
             let sku = await generateSku()
             sql = `INSERT INTO item_variants(
                 product_id,
                 name,
                 sku,
-                price,
                 cogs,
                 in_stock,
                 stock_alert
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)`
+            ) VALUES (?, ?, ?, ?, ?, ?)`
             let values = [
                 body.id,
                 el.name,
                 sku,
-                el.price,
                 el.cogs,
                 el.in_stock,
                 el.stock_alert
             ]
-            await dbPool.execute(sql, values)
+            const [insertVariantId] = await dbPool.execute(sql, values)
+            const variantId = insertVariantId.insertId
+            for(let i = 0; i < prices.length; i++) {
+                const price = prices[i]
+                const sql = `INSERT INTO item_prices(
+                    variant_id,
+                    branch_id,
+                    price
+                ) VALUES (?, ?, ?)`
+                let values = [
+                    variantId,
+                    price.branch_id,
+                    price.price
+                ]
+                await dbPool.execute(sql, values)
+            }
+
         }
     }
 }

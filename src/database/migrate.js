@@ -116,6 +116,14 @@ const migrate = async () => {
         stock_alert INT DEFAULT NULL
     ) ENGINE=INNODB`
     await dbPool.execute(item_variants)
+    
+    const item_pirces = `CREATE TABLE IF NOT EXISTS item_prices(
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        variant_id INT,
+        branch_id INT,
+        price INT DEFAULT 0
+    ) ENGINE=INNODB`
+    await dbPool.execute(item_pirces)
 
     const cusotmers = `CREATE TABLE IF NOT EXISTS customers(
         id INT AUTO_INCREMENT PRIMARY KEY,

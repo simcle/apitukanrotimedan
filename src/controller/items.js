@@ -11,7 +11,11 @@ exports.getSku = async (req, res) => {
     }
 }
 exports.getItems = async (req, res) => {
-    const body = req.query
+    const branchId = req.user.branch_id
+    const body =  {
+        branch_id: branchId,
+        search: req.query.search
+    }
     try {
         const [data] = await ItemsModel.getItems(body)
         res.status(200).json(data)

@@ -11,6 +11,8 @@ app.use('/public/', express.static(dir));
 
 const migrate = require('./src/database/migrate')
 migrate()
+const updateProductPrice = require('./src/database/productPrices')
+updateProductPrice()
 
 const authenticateToken = require('./authenticate');
 
