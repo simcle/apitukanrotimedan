@@ -1,8 +1,14 @@
 const dbPool = require('../config/database');
 
 const getSku = (body) => {
-    const sku = body.sku
-    const sql = `SELECT item_variants.*, products.name as product, products.image as image FROM item_variants LEFT JOIN products ON products.id = item_variants.product_id WHERE item_variants.sku = '${sku}'`
+    const sku = body.query.sku
+    const branchId = body.user.branch_id
+    const sql = `SELECT item_variants.*, products.name as product, products.image as image, item_prices.price as price, item_prices.branch_id as branch_id 
+    FROM item_variants 
+    LEFT JOIN products ON products.id = item_variants.product_id
+    LEFT JOIN item_prices ON item_prices.variant_id = item_variants.id
+    WHERE item_variants.sku = '${sku}'
+    AND branch_id = '${branchId}'`
     return dbPool.execute(sql)
 }
 

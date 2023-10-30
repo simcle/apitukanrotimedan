@@ -15,7 +15,7 @@ exports.downloadSales = async (req, res) => {
     const start = moment(body.start).format('DD/MM/YYYY')
     const end = moment(body.end).format('DD/MM/YYYY')
     try {
-        const [data] = await SalesModel.downloadSales(body)
+        const data = await SalesModel.downloadSales(body)
         // EXCEL
         let workbook = new excel.Workbook()
         let worksheet = workbook.addWorksheet('Laporan Penjualan')
@@ -31,7 +31,26 @@ exports.downloadSales = async (req, res) => {
         worksheet.getColumn(6).numFmt= '#,##0'
         worksheet.getRow(1).values = ['Laporan Penjualan', `dari ${start} sampai ${end}`]
         worksheet.getRow(3).values = ['Tanggal', 'Outlet', 'Transaksi', 'Pembeli', 'Kasir', 'Pembayaran', '']
-        worksheet.addRows(data)
+        for(let i = 0; i < data.length; i++) {
+            const row = 4 + i
+            worksheet.addRow(data[i]).fill = {
+                type: 'pattern',
+                pattern:'solid',
+                fgColor:{argb:'42bef6'}
+            }
+            worksheet.addRow(['','ITEMS', 'QTY', 'HARGA', 'TOTAL'])
+            for(let s=0; s < data[i].items.length; s++) {
+                const item = data[i].items[s]
+                let name;
+                if(item.name) {
+                    name = `${item.product} - ${item.name}`
+                } else {
+                    name = item.product
+                }
+                worksheet.addRow(['', name, item.qty, item.price, item.total])
+            }
+            
+        }
         res.setHeader(
             "Content-Type",
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"

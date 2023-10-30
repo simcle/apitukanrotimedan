@@ -157,7 +157,19 @@ const downloadSales = async (body) => {
         LEFT JOIN branches ON branches.id=sales.branch_id
         WHERE (DATE(sales.created_at) BETWEEN '${start}' AND '${end}') AND status='Posted' ORDER BY sales.created_at ASC`
     }
-    return dbPool.execute(sql)
+    const [sales] = await dbPool.execute(sql)
+    for (let i = 0; i < sales.length; i++) {
+        const saleId = sales[i].id
+        sales[i].items = []
+        let sql = `SELECT sales_details.*, item_variants.id as variant_id, item_variants.name as name, products.id as product_id, products.name as product FROM sales_details 
+        LEFT JOIN item_variants ON item_variants.id = sales_details.variant_id 
+        LEFT JOIN products ON products.id = item_variants.product_id 
+        WHERE sales_details.sales_id = ${saleId}`
+        const [details] = await dbPool.execute(sql)
+        sales[i].items = details
+    }
+    return sales;
+
 }
 const getDraft = async (body) => {
     const branch_id = body

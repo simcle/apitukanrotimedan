@@ -2,7 +2,7 @@ const ItemsModel = require('../models/items');
 
 
 exports.getSku = async (req, res) => {
-    const body = req.query
+    const body = req
     try {
         const [data] = await ItemsModel.getSku(body)
         res.status(200).json(data[0])

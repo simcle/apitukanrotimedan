@@ -73,6 +73,9 @@ const getDeatilProduct = async (body) => {
     const [variant] = await dbPool.execute(sql)
     for (let i = 0; i < variant.length; i++) {
         variant[i].qty = 10;
+        sql = `SELECT * FROM item_prices WHERE variant_id= '${variant[i].id}'`
+        const [itemPrices] = await dbPool.execute(sql)
+        variant[i].prices = itemPrices   
     }
     data[0].item_variants = variant
     return data[0]
