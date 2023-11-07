@@ -32,7 +32,7 @@ const getAllProduct = async (body) => {
         totalItems = 0
     } 
     if(filter) {
-        sql = `SELECT products.*, categories.name as category, brands.name as brand FROM products LEFT JOIN categories ON categories.id = products.category_id LEFT JOIN brands ON brands.id = products.brand_id WHERE products.name LIKE '%${search}%' AND category_id IN (${filter})ORDER BY id DESC LIMIT ${perPage} OFFSET ${(currentPage -1) * perPage}`
+        sql = `SELECT products.*, categories.name as category, brands.name as brand FROM products LEFT JOIN categories ON categories.id = products.category_id LEFT JOIN brands ON brands.id = products.brand_id WHERE products.name LIKE '%${search}%' AND category_id IN (${filter}) ORDER BY id DESC LIMIT ${perPage} OFFSET ${(currentPage -1) * perPage}`
     } else {
         sql = `SELECT products.*, categories.name as category, brands.name as brand FROM products LEFT JOIN categories ON categories.id = products.category_id LEFT JOIN brands ON brands.id = products.brand_id WHERE products.name LIKE '%${search}%' ORDER BY id DESC LIMIT ${perPage} OFFSET ${(currentPage -1) * perPage}`
     }

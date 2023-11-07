@@ -12,7 +12,7 @@ app.use('/public/', express.static(dir));
 const migrate = require('./src/database/migrate')
 migrate()
 const updateProductPrice = require('./src/database/productPrices')
-updateProductPrice()
+// updateProductPrice()
 
 const authenticateToken = require('./authenticate');
 
@@ -26,6 +26,10 @@ const userRoutes = require('./src/routes/users');
 const employeeRoutes = require('./src/routes/employee');
 const attendenceRoutes = require('./src/routes/attendence');
 const categoryRoutes = require('./src/routes/category');
+const ingredientCategoriesRoutes = require('./src/routes/ingredientCategories');
+const ingredientUnitsRoutes = require('./src/routes/ingredientUnits');
+const ingredientRoutes = require('./src/routes/ingredients');
+const receipeRoutes = require('./src/routes/receipes');
 const brandRoutes = require('./src/routes/brand');
 const productRoutes = require('./src/routes/product');
 const itemsRoutes = require('./src/routes/items');
@@ -33,6 +37,7 @@ const customerRoutes = require('./src/routes/customer');
 const saleRoutes = require('./src/routes/sales');
 const paymentMethodRoutes = require('./src/routes/paymentMethod');
 const printerRoutes = require('./src/routes/printer');
+
 
 app.use('/webhook', webhook);
 app.use('/auth', authRoutes);
@@ -44,6 +49,10 @@ app.use('/users', authenticateToken, userRoutes);
 app.use('/employee', authenticateToken, employeeRoutes);
 app.use('/attendence', authenticateToken, attendenceRoutes);
 app.use('/category', authenticateToken, categoryRoutes);
+app.use('/ingredient-categories', authenticateToken, ingredientCategoriesRoutes);
+app.use('/ingredient-units', authenticateToken, ingredientUnitsRoutes);
+app.use('/ingredients', authenticateToken, ingredientRoutes);
+app.use('/receipes', authenticateToken, receipeRoutes);
 app.use('/brand', authenticateToken, brandRoutes);
 app.use('/product', authenticateToken, productRoutes);
 app.use('/items', authenticateToken, itemsRoutes);

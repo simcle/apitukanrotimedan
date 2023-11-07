@@ -182,6 +182,49 @@ const migrate = async () => {
         branch_id INT
     ) ENGINE=INNODB`
     await dbPool.execute(printer)
+
+    const ingredient_categories = `CREATE TABLE IF NOT EXISTS ingredient_categories (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255)
+    ) ENGINE=INNODB`
+    await dbPool.execute(ingredient_categories)
+
+    const ingredient_units = `CREATE TABLE IF NOT EXISTS ingredient_units (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255)
+    ) ENGINE=INNODB`
+    await dbPool.execute(ingredient_units)
+    
+    const ingredients = `CREATE TABLE IF NOT EXISTS ingredients (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255),
+        ingredient_category_id INT,
+        unit_id INT DEFAULT NULL,
+        unit_cost INT DEFAULT 0,
+        in_stock INT DEFAULT NULL,
+        alert INT DEFAULT NULL,
+        image VARCHAR(255)
+    ) ENGINE=INNODB`
+
+    await dbPool.execute(ingredients);
+    
+    const receipes = `CREATE TABLE IF NOT EXISTS receipes (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        item_id INT,
+        variant_id INT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=INNODB`
+    
+    await dbPool.execute(receipes);
+    const receipe_ingredients = `CREATE TABLE IF NOT EXISTS receipe_ingredients (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        receipe_id INT,
+        ingredient_id INT,
+        qty INT
+    ) ENGINE=INNODB`
+    await dbPool.execute(receipe_ingredients)
+
 }
 
 module.exports = migrate
