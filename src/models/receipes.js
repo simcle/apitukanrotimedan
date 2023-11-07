@@ -50,7 +50,8 @@ const getAllReceipes = async (body) => {
     LEFT JOIN products ON products.id = receipes.item_id
     LEFT JOIN item_variants ON item_variants.id = receipes.variant_id
     WHERE products.name LIKE '%${search}%'
-    ORDER BY receipes.id DESC`
+    ORDER BY receipes.id DESC
+    LIMIT ${perPage} OFFSET ${(currentPage -1) * perPage}`
     const [data] = await dbPool.execute(sql)
     for (let i=0; i < data.length; i++) {
         const receipeId = data[i].id
