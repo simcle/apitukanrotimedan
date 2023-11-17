@@ -73,7 +73,7 @@ app.use('/summary-ingredients', authenticateToken, summaryIngredientRoutes);
 app.use('/adjustment-ingredients', authenticateToken, adjustmentIngredientRoutes)
 app.use('/transfer-ingredients', authenticateToken, transferIngredientRoutes)
 
-cron.schedule('0 1 * * *', async () => {
+cron.schedule('*/10 * * * * *', async () => {
     await tasks.summary_ingredients()
 })
 
