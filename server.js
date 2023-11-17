@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const cron = require('node-cron');
 
 const app = express();
 app.use(cors());
@@ -13,6 +14,8 @@ const migrate = require('./src/database/migrate')
 migrate()
 const updateProductPrice = require('./src/database/productPrices')
 // updateProductPrice()
+
+const tasks = require('./src/modules/tasks');
 
 const authenticateToken = require('./authenticate');
 
@@ -37,7 +40,11 @@ const customerRoutes = require('./src/routes/customer');
 const saleRoutes = require('./src/routes/sales');
 const paymentMethodRoutes = require('./src/routes/paymentMethod');
 const printerRoutes = require('./src/routes/printer');
-
+const supplierRoutes = require('./src/routes/suppliers');
+const purchasingRoutes = require('./src/routes/purchasing');
+const summaryIngredientRoutes = require('./src/routes/summeryIngredients');
+const adjustmentIngredientRoutes = require('./src/routes/adjustmentIngredients');
+const transferIngredientRoutes = require('./src/routes/transferIngredients');
 
 app.use('/webhook', webhook);
 app.use('/auth', authRoutes);
@@ -60,6 +67,15 @@ app.use('/customer', authenticateToken, customerRoutes);
 app.use('/sales', authenticateToken, saleRoutes);
 app.use('/payment-method', authenticateToken, paymentMethodRoutes);
 app.use('/printer', authenticateToken, printerRoutes);
+app.use('/suppliers', authenticateToken, supplierRoutes);
+app.use('/purchasing', authenticateToken, purchasingRoutes);
+app.use('/summary-ingredients', authenticateToken, summaryIngredientRoutes);
+app.use('/adjustment-ingredients', authenticateToken, adjustmentIngredientRoutes)
+app.use('/transfer-ingredients', authenticateToken, transferIngredientRoutes)
+
+cron.schedule('0 1 * * *', async () => {
+    await tasks.summary_ingredients()
+})
 
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {

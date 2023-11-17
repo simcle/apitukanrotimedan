@@ -27,6 +27,7 @@ exports.insertIngredient = async (req, res) => {
         ingredient_category_id: JSON.parse(data.ingredient_category_id),
         unit_id: data.unit_id,
         unit_cost: data.unit_cost,
+        unit_name: data.unit_name,
         image: ''
     }
     if(req.file) {
@@ -54,6 +55,7 @@ exports.updateIngredient = async (req, res) => {
         name: data.name,
         ingredient_category_id: JSON.parse(data.ingredient_category_id),
         unit_id: data.unit_id,
+        unit_name: data.unit_name,
         unit_cost: data.unit_cost,
         image: ''
 
@@ -69,6 +71,16 @@ exports.updateIngredient = async (req, res) => {
     try {
         body.image = fileName
         await IngredientModel.updateIngredient(body)
+        res.status(200).json('OK')
+    } catch (error) {
+        res.status(400).send(error)
+    }
+}
+
+exports.deleteIngredient = async (req, res) => {
+    const id = req.params.id
+    try {
+        await IngredientModel.deleteIngredient(id)
         res.status(200).json('OK')
     } catch (error) {
         res.status(400).send(error)

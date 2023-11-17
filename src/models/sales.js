@@ -112,12 +112,16 @@ const getAllsales = async (body) => {
         sql = `SELECT sales.*, branches.name as outlet, users.name as kasir FROM sales 
         LEFT JOIN users ON users.id=sales.user_id
         LEFT JOIN branches ON branches.id=sales.branch_id
-        WHERE (DATE(sales.created_at) BETWEEN '${start}' AND '${end}') AND status='Posted' AND sales.branch_id IN (${filter}) AND sales.branch_id IS NOT NULL ORDER BY sales.created_at ASC LIMIT ${perPage} OFFSET ${(currentPage -1) * perPage}`
+        WHERE (DATE(sales.created_at) BETWEEN '${start}' AND '${end}') AND status='Posted' AND sales.branch_id IN (${filter}) AND sales.branch_id IS NOT NULL 
+        ORDER BY sales.created_at ASC 
+        LIMIT ${perPage} OFFSET ${(currentPage -1) * perPage}`
     } else {
         sql = `SELECT sales.*, branches.name as outlet, users.name as kasir FROM sales 
         LEFT JOIN users ON users.id=sales.user_id
         LEFT JOIN branches ON branches.id=sales.branch_id
-        WHERE (DATE(sales.created_at) BETWEEN '${start}' AND '${end}') AND status='Posted' AND sales.branch_id IS NOT NULL ORDER BY sales.created_at ASC LIMIT ${perPage} OFFSET ${(currentPage -1) * perPage}`
+        WHERE (DATE(sales.created_at) BETWEEN '${start}' AND '${end}') AND status='Posted' AND sales.branch_id IS NOT NULL 
+        ORDER BY sales.created_at ASC 
+        LIMIT ${perPage} OFFSET ${(currentPage -1) * perPage}`
     }
     const [sales] = await dbPool.execute(sql)
     for (let i = 0; i < sales.length; i++) {

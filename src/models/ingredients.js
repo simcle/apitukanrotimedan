@@ -13,7 +13,8 @@ const getAllIngredients = async (body) => {
     let filter = body.filter
     let sql;
     if(filter) {
-        sql = `SELECT COUNT(*) as count FROM ingredients WHERE name LIKE '%${search}%' AND ingredient_category_id IN (${filter})`
+        let categories = filter.join("','")
+        sql = `SELECT COUNT(*) as count FROM ingredients WHERE name LIKE '%${search}%' AND ingredient_category_id IN ('${categories}')`
     } else {
         sql = `SELECT COUNT(*) as count FROM ingredients WHERE name LIKE '%${search}%'`
     }
@@ -24,11 +25,12 @@ const getAllIngredients = async (body) => {
         totalItems = 0
     } 
     if(filter) {
+        let categories = filter.join("','")
         sql = `SELECT ingredients.*, ingredient_categories.name as category_name, ingredient_units.name as unit_name 
         FROM ingredients
         LEFT JOIN ingredient_categories ON ingredient_categories.id = ingredients.ingredient_category_id 
         LEFT JOIN ingredient_units ON ingredient_units.id = ingredients.unit_id 
-        WHERE ingredients.name LIKE '%${search}%' AND ingredient_category_id IN (${filter}) 
+        WHERE ingredients.name LIKE '%${search}%' AND ingredient_category_id IN ('${categories}') 
         ORDER BY id DESC
         LIMIT ${perPage} OFFSET ${(currentPage -1) * perPage}`
     } else {
@@ -41,6 +43,16 @@ const getAllIngredients = async (body) => {
         LIMIT ${perPage} OFFSET ${(currentPage -1) * perPage}`
     }
     const [data] = await dbPool.execute(sql)
+    for(let i = 0; i < data.length; i++) {
+        const ingredientId = data[i].id
+        sql = `SELECT * FROM receipe_ingredients WHERE ingredient_id = '${ingredientId}' LIMIT 1`
+        const [ready] = await dbPool.execute(sql)
+        if(ready.length > 0) {
+            data[i].used = true
+        } else {
+            data[i].used = false
+        }
+    }
     const last_page = Math.ceil(totalItems / perPage)
     return {
         data: data,
@@ -66,7 +78,21 @@ const insertIngredient = async (body) => {
         body.unit_cost,
         body.image
     ]
-    return await dbPool.execute(sql, values)
+    const [ingredient] = await dbPool.execute(sql, values)
+    const ingredientId = ingredient.insertId
+    sql = `SELECT * FROM branches`
+    const [branches] = await dbPool.execute(sql)
+    for(let i = 0; i < branches.length; i++) {
+        const branchId = branches[i].id
+        sql = `INSERT INTO summary_ingredients (
+            branch_id,
+            ingredient_id,
+            ingredient_name,
+            unit_name
+        ) VALUES ('${branchId}', '${ingredientId}', '${body.name}', '${body.unit_name}')`
+        await dbPool.execute(sql)
+    }
+    return 'OK'
 }
 
 const updateIngredient = async (body) => {
@@ -89,11 +115,20 @@ const updateIngredient = async (body) => {
         body.id
     ]
     await dbPool.execute(sql, values)
+    sql = `UPDATE summary_ingredients SET ingredient_name='${body.name}', unit_name='${body.unit_name}' WHERE ingredient_id=${body.id}`
+    await dbPool.execute(sql)
+}
+
+const deleteIngredient = async (id) => {
+    let sql = `DELETE FROM ingredients WHERE id = '${id}'`
+    await dbPool.execute(sql)
+    return 'OK'
 }
 
 module.exports = {
     getIngredientCategories,
     insertIngredient,
     getAllIngredients,
-    updateIngredient
+    updateIngredient,
+    deleteIngredient
 }

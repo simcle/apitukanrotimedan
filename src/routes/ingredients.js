@@ -20,6 +20,6 @@ router.get('/categories', ingredientController.getIngredientCategories);
 router.get('/', ingredientController.getAllIngredient);
 router.post('/', upload.single('image'), ingredientController.insertIngredient);
 router.put('/', upload.single('image'), ingredientController.updateIngredient);
-
+router.delete('/:id', ingredientController.deleteIngredient);
 
 module.exports = router;

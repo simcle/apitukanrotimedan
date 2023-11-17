@@ -201,12 +201,38 @@ const migrate = async () => {
         ingredient_category_id INT,
         unit_id INT DEFAULT NULL,
         unit_cost INT DEFAULT 0,
-        in_stock INT DEFAULT NULL,
         alert INT DEFAULT NULL,
         image VARCHAR(255)
     ) ENGINE=INNODB`
-
     await dbPool.execute(ingredients);
+    
+    const drop_in_stock_ingredient = `ALTER TABLE ingredients DROP COLUMN IF EXISTS in_stock `
+    await dbPool.execute(drop_in_stock_ingredient)
+
+    const inventory_ingredients = `CREATE TABLE IF NOT EXISTS inventory_ingredients (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        branch_id INT,
+        ingredient_id INT,
+        qty DECIMAL(6,2) DEFAULT 0
+    )`
+    await dbPool.execute(inventory_ingredients)
+
+    const summary_ingredients = `CREATE TABLE IF NOT EXISTS summary_ingredients (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        branch_id INT,
+        ingredient_id INT,
+        ingredient_name VARCHAR(255),
+        beginning DECIMAL(6,2) DEFAULT 0,
+        purchase DECIMAL(6,2) DEFAULT 0,
+        usages DECIMAL(6,2) DEFAULT 0,
+        transfer DECIMAL(6,2) DEFAULT 0,
+        adjustment DECIMAL(6,2) DEFAULT 0,
+        ending DECIMAL(6,2) DEFAULT 0,
+        unit_name VARCHAR(225),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=INNODB`
+    await dbPool.execute(summary_ingredients)
     
     const receipes = `CREATE TABLE IF NOT EXISTS receipes (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -221,9 +247,85 @@ const migrate = async () => {
         id INT AUTO_INCREMENT PRIMARY KEY,
         receipe_id INT,
         ingredient_id INT,
-        qty INT
+        qty DECIMAL (6,2)
     ) ENGINE=INNODB`
     await dbPool.execute(receipe_ingredients)
+
+    const suppliers = `CREATE TABLE IF NOT EXISTS suppliers (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255),
+        mobile VARCHAR(255),
+        email VARCHAR(255),
+        address VARCHAR(255),
+        city VARCHAR(255),
+        province VARCHAR(255),
+        zip VARCHAR(10)
+    ) ENGINE=INNODB`
+    await dbPool.execute(suppliers)
+
+    const purchasing = `CREATE TABLE IF NOT EXISTS purchasing (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        purchasing_no VARCHAR(255),
+        supplier_id INT,
+        note VARCHAR(255),
+        status VARCHAR(255),
+        total INT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=INNODB`
+    await dbPool.execute(purchasing)
+
+    const purchasing_details = `CREATE TABLE IF NOT EXISTS purchasing_details (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        purchasing_id INT,
+        ingredient_id INT,
+        in_stock DECIMAL(6, 2),
+        qty DECIMAL(6, 2),
+        unit_cost INT,
+        sub_total INT
+    ) ENGINE=INNODB`
+    await dbPool.execute(purchasing_details)
+    const adjustment_ingredients = `CREATE TABLE IF NOT EXISTS adjustment_ingredients (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        branch_id INT,
+        user_id INT,
+        note VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=INNODB`
+    await dbPool.execute(adjustment_ingredients)
+
+    const adjustment_ingredient_details = `CREATE TABLE IF NOT EXISTS adjustment_ingredient_details (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        adjustment_id INT,
+        ingredient_id INT,
+        ingredient_name VARCHAR(255),
+        in_stock DECIMAL(6,2),
+        actual_stock DECIMAL(6,2),
+        adjustment DECIMAL(6,2),
+        unit_name VARCHAR(255)
+    ) ENGINE=INNODB`
+    await dbPool.execute(adjustment_ingredient_details)
+
+    const transfer_ingredients = `CREATE TABLE IF NOT EXISTS transfer_ingredients (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        transfer_no VARCHAR(255),
+        to_outlet_id INT,
+        note VARCHAR(255),
+        user_id INT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=INNODB`
+    await dbPool.execute(transfer_ingredients)
+    
+    const transfer_ingredient_details = `CREATE TABLE IF NOT EXISTS transfer_ingredient_details (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        transfer_id INT,
+        ingredient_id INT,
+        in_stock DECIMAL(6,2),
+        qty DECIMAL(6,2)
+    ) ENGINE=INNODB`
+    await dbPool.execute(transfer_ingredient_details)
 
 }
 
