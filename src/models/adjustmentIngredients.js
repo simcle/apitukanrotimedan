@@ -58,6 +58,44 @@ const getAllAdjustment = async (body) => {
     }
 
 }
+
+const getAdjustmentByBranch = async (body) => {
+    const branch_id = body
+    let currentPage = parseInt(body.page) || 1
+    let perPage = body.perPage || 20
+    let totalItems;
+    let sql;
+
+    sql =  `SELECT COUNT(*) as count FROM adjustment_ingredients WHERE branch_id = '${branch_id}'`
+    const [count]  = await dbPool.execute(sql)
+    if(count[0].count) {
+        totalItems = count[0].count
+    } else {
+        totalItems = 0
+    } 
+    sql = `SELECT * FROM adjustment_ingredients 
+        WHERE branch_id = '${branch_id}'
+        ORDER BY id DESC
+        LIMIT ${perPage} OFFSET ${(currentPage -1) * perPage}
+    `
+    const [data] = await dbPool.execute(sql)
+    for(let i = 0; i < data.length; i++) {
+        const adjustmentId = data[i].id 
+        sql = `SELECT * FROM adjustment_ingredient_details WHERE adjustment_id='${adjustmentId}'`
+        const [items] = await dbPool.execute(sql)
+        data[i].items = items
+    }
+    const last_page = Math.ceil(totalItems / perPage)
+    return {
+        data: data,
+        pages: {
+            current_page: currentPage,
+            last_page: last_page,
+            totalItems: totalItems
+        }
+    }
+}
+
 const insertAdjustments = async (body) => {
     const items = body.items
     let sql = `INSERT INTO adjustment_ingredients (
@@ -97,8 +135,8 @@ const insertAdjustments = async (body) => {
         const data = {
             branch_id: body.branch_id,
             ingredient_id: item.ingredient_id,
-            qty: item.adjustment,
-            actual_stock: item.actual_stock
+            qty: item.actual_stock,
+            adjustment: item.adjustment
         }
         await summary(data, 'Adjustment')
     }
@@ -106,5 +144,6 @@ const insertAdjustments = async (body) => {
 
 module.exports = {
     getAllAdjustment,
+    getAdjustmentByBranch,
     insertAdjustments
 }

@@ -58,19 +58,71 @@ const getAllPurchasing = async (body) => {
         }
     }
 }
+const getPurchasingByBranch = async (body) => {
+    const branch_id = body.branch_id
+    let currentPage = parseInt(body.page) || 1
+    let perPage = body.perPage || 10
+    let totalItems;
+    let search = body.search
+    let sql;
+    sql = `SELECT COUNT(*) as count FROM purchasing
+    LEFT JOIN suppliers ON suppliers.id = purchasing.supplier_id
+    WHERE purchasing.branch_id = '${branch_id}' AND suppliers.name LIKE '%${search}%'`
+    const [count] = await dbPool.execute(sql);
+    if(count[0].count) {
+        totalItems = count[0].count
+    } else {
+        totalItems = 0
+    } 
+    if(search) {
+        sql = `SELECT purchasing.*, suppliers.name as supplier_name FROM purchasing
+        LEFT JOIN suppliers ON purchasing.supplier_id = suppliers.id
+        WHERE purchasing.branch_id = '${branch_id}' AND suppliers.name LIKE '%${search}%'
+        ORDER BY id DESC
+        LIMIT ${perPage} OFFSET ${(currentPage -1) * perPage}`
+    } else {
+        sql = `SELECT purchasing.*, suppliers.name as supplier_name FROM purchasing
+        LEFT JOIN suppliers ON purchasing.supplier_id = suppliers.id
+        WHERE purchasing.branch_id = '${branch_id}'
+        ORDER BY id DESC
+        LIMIT ${perPage} OFFSET ${(currentPage -1) * perPage}`
+    }
+    const [data] = await dbPool.execute(sql)
+    for (let i = 0; i < data.length; i++) {
+        const purchasingId = data[i].id 
+        sql = `SELECT purchasing_details.*, ingredients.name as ingredient_name, ingredient_units.name as unit_name
+        FROM purchasing_details
+        LEFT JOIN ingredients ON ingredients.id = purchasing_details.ingredient_id
+        LEFT JOIN ingredient_units ON ingredient_units.id = ingredients.unit_id
+        WHERE purchasing_details.purchasing_id = '${purchasingId}'`
+        const [items] = await dbPool.execute(sql)
+        data[i].items = items
+    }
+    const last_page = Math.ceil(totalItems / perPage)
+    return {
+        data: data,
+        pages: {
+            current_page: currentPage,
+            last_page: last_page,
+            totalItems: totalItems
+        }
+    }
+}
 const insertPurchasing = async (body) => {
     const purchasingNo = `# ${Math.floor(Date.now()/1000)}`
     const items = body.items
     let sql;
     sql = `INSERT INTO purchasing (
         purchasing_no,
+        branch_id,
         supplier_id,
         note,
         status,
         total
-    ) VALUES (?, ?, ?, ?, ?)`
+    ) VALUES (?, ?, ?, ?, ?, ?)`
     let values = [
         purchasingNo,
+        body.branch_id,
         body.supplier_id,
         body.note,
         body.status,
@@ -99,7 +151,7 @@ const insertPurchasing = async (body) => {
         await dbPool.execute(sql, values)
         if(body.status == 'Completed') {
             const data = {
-                branch_id: 8,
+                branch_id: body.branch_id,
                 ingredient_id: item.ingredient_id,
                 qty: item.qty
             }
@@ -173,6 +225,7 @@ module.exports = {
     getIngredients,
     getAllSupplier,
     getAllPurchasing,
+    getPurchasingByBranch,
     insertPurchasing,
     updatePurchasing,
     cancelPurchasing,

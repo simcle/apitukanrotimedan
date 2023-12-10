@@ -28,6 +28,12 @@ const getAllSupplier = async (body) => {
         }
     }
 }
+const getSupplierByBranch = async (body) => {
+    const branch_id = body.branch_id
+    const search = body.search
+    let sql = `SELECT * FROM suppliers WHERE branch_id='${branch_id}' AND name LIKE '%${search}%' LIMIT 5`
+    return await dbPool.execute(sql)
+} 
 const insertSupplier = async (body) => {
     let sql = `INSERT INTO suppliers (
         name,
@@ -36,8 +42,9 @@ const insertSupplier = async (body) => {
         address,
         city,
         province,
-        zip
-    ) VALUES (?, ?, ?, ?, ?, ?, ?)`
+        zip,
+        branch_id
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
     let values = [
         body.name,
         body.mobile,
@@ -45,10 +52,12 @@ const insertSupplier = async (body) => {
         body.address,
         body.city,
         body.province,
-        body.zip
+        body.zip,
+        body.branch_id
     ]
-    await dbPool.execute(sql, values)
-    return 'OK'
+    const [data] = await dbPool.execute(sql, values)
+    sql = `SELECT * FROM suppliers WHERE id='${data.insertId}'`
+    return dbPool.execute(sql)
 }
 
 const updateSupplier = async (body) => {
@@ -76,6 +85,7 @@ const updateSupplier = async (body) => {
 }
 module.exports = {
     getAllSupplier,
+    getSupplierByBranch,
     insertSupplier,
     updateSupplier
 }

@@ -26,16 +26,18 @@ const getAllIngredients = async (body) => {
     } 
     if(filter) {
         let categories = filter.join("','")
-        sql = `SELECT ingredients.*, ingredient_categories.name as category_name, ingredient_units.name as unit_name 
+        sql = `SELECT ingredients.*, ingredient_categories.name as category_name, ingredient_units.name as unit_name, SUM(inventory_ingredients.qty) as qty 
         FROM ingredients
+        LEFT JOIN inventory_ingredients ON inventory_ingredients.ingredient_id = ingredients.id
         LEFT JOIN ingredient_categories ON ingredient_categories.id = ingredients.ingredient_category_id 
         LEFT JOIN ingredient_units ON ingredient_units.id = ingredients.unit_id 
         WHERE ingredients.name LIKE '%${search}%' AND ingredient_category_id IN ('${categories}') 
         ORDER BY id DESC
         LIMIT ${perPage} OFFSET ${(currentPage -1) * perPage}`
     } else {
-        sql = `SELECT ingredients.*, ingredient_categories.name as category_name, ingredient_units.name as unit_name
+        sql = `SELECT ingredients.*, ingredient_categories.name as category_name, ingredient_units.name as unit_name, inventory.qty as qty
         FROM ingredients
+        LEFT JOIN (SELECT ingredient_id, SUM(qty) as qty FROM inventory_ingredients GROUP BY ingredient_id) as inventory ON inventory.ingredient_id = ingredients.id 
         LEFT JOIN ingredient_categories ON ingredient_categories.id = ingredients.ingredient_category_id 
         LEFT JOIN ingredient_units ON ingredient_units.id = ingredients.unit_id 
         WHERE ingredients.name LIKE '%${search}%'
@@ -80,6 +82,14 @@ const insertIngredient = async (body) => {
     ]
     const [ingredient] = await dbPool.execute(sql, values)
     const ingredientId = ingredient.insertId
+    if(body.branch_id) {
+        sql = `INSERT INTO inventory_ingredients (
+            branch_id,
+            ingredient_id,
+            qty
+        ) VALUES ('${body.branch_id}', '${ingredientId}', '0')`
+        await dbPool.execute(sql)
+    }
     sql = `SELECT * FROM branches`
     const [branches] = await dbPool.execute(sql)
     for(let i = 0; i < branches.length; i++) {

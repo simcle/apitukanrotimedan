@@ -11,6 +11,16 @@ exports.getAllAdjustments = async (req, res) => {
     }
 }
 
+exports.getAdjustmentByBranch = async (req, res) => {
+    const body = req.user.branch_id
+    try {
+        const data = await AdjustmentModel.getAdjustmentByBranch(body)
+        res.status(200).json(data)
+    } catch (error) {
+        res.status(400).send(error)
+    }
+}
+
 exports.insertAdjustment = async (req, res) => {
     const body = req.body
     let branch_id; 
@@ -27,6 +37,7 @@ exports.insertAdjustment = async (req, res) => {
         await AdjustmentModel.insertAdjustments(body)
         res.status(200).json('OK')
     } catch (error) {
+        console.log(error)
         res.status(400).send(error)
     }
 }

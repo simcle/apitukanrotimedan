@@ -36,12 +36,30 @@ exports.getAllPurchasing = async (req, res) => {
     }
 }
 
+exports.getPurchasingByBranch = async (req, res) => {
+    const body = req.query
+    body.branch_id = req.user.branch_id
+    try {
+        const data = await PurchasingModel.getPurchasingByBranch(body)
+        res.status(200).json(data)
+    } catch (error) {
+        console.log(error)
+        res.status(400).send(error)
+    }
+}
 exports.insertPurchasing = async (req, res) => {
+    const branch_id = req.user.branch_id
     const body = req.body
+    if(branch_id) {
+        body.branch_id = branch_id
+    } else {
+        body.branch_id = 8
+    }
     try {
         const data = await PurchasingModel.insertPurchasing(body)
         res.status(200).json(data)
     } catch (error) {
+        console.log(error)
         res.status(400).send(error)
     }
 }

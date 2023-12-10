@@ -1,5 +1,5 @@
 const dbPool = require('../config/database');
-
+const itemSummary = require('../modules/itemSummary');
 const summarySales = async () => {
     let sql;
     let stats = []
@@ -258,6 +258,14 @@ const insertSales = async (body) => {
             item.total
         ]
         await dbPool.execute(sql, values)
+        if(body.status == 'Posted') {
+            const payload = {
+                branch_id: body.branch_id,
+                item_id: item.variant_id,
+                qty: item.qty
+            }
+            await itemSummary(payload, 'sales')
+        }
     }
     return 
 }
@@ -306,6 +314,14 @@ const updateSales = async (body) => {
             item.total
         ]
         await dbPool.execute(sql, values)
+        if(body.status == 'Posted') {
+            const payload = {
+                branch_id: body.branch_id,
+                item_id: item.variant_id,
+                qty: item.qty
+            }
+            await itemSummary(payload, 'sales')
+        }
     }
     return
 }

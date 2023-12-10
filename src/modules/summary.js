@@ -5,7 +5,7 @@ const summary = async (body , type) => {
     const branch_id = body.branch_id
     const ingredient_id = body.ingredient_id
     const qty = body.qty
-    const actual_stock = body.actual_stock
+    const adjustment = body.adjustment
     let ending
     let sql;
     sql = `SELECT * FROM summary_ingredients WHERE branch_id='${branch_id}' AND ingredient_id='${ingredient_id}' AND DATE(created_at)='${date}'`
@@ -19,9 +19,9 @@ const summary = async (body , type) => {
             await updateStock(branch_id, ingredient_id, ending)
             break;
         case 'Adjustment':
-            let adjustment = parseFloat(data[0].adjustment) + parseFloat(qty)
-            ending = actual_stock
-            sql = `UPDATE summary_ingredients SET adjustment='${adjustment}', ending='${ending}' WHERE branch_id='${branch_id}' AND ingredient_id='${ingredient_id}' AND DATE(created_at)='${date}'`
+            let adj = parseFloat(data[0].adjustment) + parseFloat(adjustment)
+            ending = qty
+            sql = `UPDATE summary_ingredients SET adjustment='${adj}', ending='${ending}' WHERE branch_id='${branch_id}' AND ingredient_id='${ingredient_id}' AND DATE(created_at)='${date}'`
             await dbPool.execute(sql)
             await updateStock(branch_id, ingredient_id, ending)
             break;
@@ -39,7 +39,15 @@ const summary = async (body , type) => {
             sql = `UPDATE summary_ingredients SET transfer='${transfer}', ending='${ending}' WHERE branch_id='8' AND ingredient_id='${ingredient_id}' AND DATE(created_at)='${date}'`
             await dbPool.execute(sql)
             await updateStock(8, ingredient_id, ending)
-    }   
+            break;
+        case 'Usage': 
+            let usage = parseFloat(data[0].usages) + parseFloat(qty)
+            ending = parseFloat(data[0].ending) - parseFloat(qty)
+            sql = `UPDATE summary_ingredients SET usages='${usage}', ending='${ending}' WHERE branch_id='${branch_id}' AND ingredient_id = '${ingredient_id}' AND DATE(created_at) ='${date}'`
+            await dbPool.execute(sql)
+            await updateStock(branch_id, ingredient_id, ending)
+            break;
+    }  
     return
 }
 

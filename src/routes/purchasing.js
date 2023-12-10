@@ -6,6 +6,7 @@ const purchasingController = require('../controller/purchasing');
 router.get('/ingredients', purchasingController.getIngredients);
 router.get('/supplier', purchasingController.getAllSupplier);
 router.get('/', purchasingController.getAllPurchasing);
+router.get('/branch', purchasingController.getPurchasingByBranch);
 router.post('/', purchasingController.insertPurchasing);
 router.put('/', purchasingController.updatePurchasing);
 router.post('/cancel/:id', purchasingController.cancelPurchasing);

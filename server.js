@@ -45,6 +45,10 @@ const purchasingRoutes = require('./src/routes/purchasing');
 const summaryIngredientRoutes = require('./src/routes/summeryIngredients');
 const adjustmentIngredientRoutes = require('./src/routes/adjustmentIngredients');
 const transferIngredientRoutes = require('./src/routes/transferIngredients');
+const inventoryInredientRoutes = require('./src/routes/inventoryIngredients');
+const inventoryItemRoutes = require('./src/routes/inventoryItems');
+const incomingItemRoutes = require('./src/routes/incomingItems');
+const adjustmentItemRoutes = require('./src/routes/adjustmentItems');
 
 app.use('/webhook', webhook);
 app.use('/auth', authRoutes);
@@ -72,10 +76,16 @@ app.use('/purchasing', authenticateToken, purchasingRoutes);
 app.use('/summary-ingredients', authenticateToken, summaryIngredientRoutes);
 app.use('/adjustment-ingredients', authenticateToken, adjustmentIngredientRoutes)
 app.use('/transfer-ingredients', authenticateToken, transferIngredientRoutes)
+app.use('/inventory-ingredients', authenticateToken, inventoryInredientRoutes);
+app.use('/inventory-items', authenticateToken, inventoryItemRoutes);
+app.use('/incoming', authenticateToken, incomingItemRoutes)
+app.use('/adjustment-items', authenticateToken, adjustmentItemRoutes);
 
 cron.schedule('0 1 * * *', async () => {
     await tasks.summary_ingredients()
+    await tasks.summary_items()
 })
+
 
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {

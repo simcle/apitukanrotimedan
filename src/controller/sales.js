@@ -105,12 +105,14 @@ exports.insertSales = async (req, res) => {
         await SalesModel.insertSales(body)
         res.status(200).json('OK')
     } catch (error) {
+        console.log(error)
         res.status(400).send(error)
     }
 }
 
 exports.updateSales = async (req, res) => {
     const body = req.body
+    body.branch_id = req.user.branch_id
     try {
         await SalesModel.updateSales(body)
         res.status(200).json('OK')

@@ -22,13 +22,15 @@ exports.getAllIngredient = async (req, res) => {
 exports.insertIngredient = async (req, res) => {
     let fileName = ''
     const data = req.body
+    const branch_id = req.user.branch_id
     const body = {
         name: data.name,
         ingredient_category_id: JSON.parse(data.ingredient_category_id),
         unit_id: data.unit_id,
         unit_cost: data.unit_cost,
         unit_name: data.unit_name,
-        image: ''
+        image: '',
+        branch_id: branch_id
     }
     if(req.file) {
         const filePath = `./public/img/ingredients/${req.file.filename}`
