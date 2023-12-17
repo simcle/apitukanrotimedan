@@ -20,6 +20,10 @@ exports.indexDashboard = (req, res) => {
     })
 }
 
+exports.getSaleByOutlet = (req, res) => {
+    console.log(req.params.branch_id)
+}
+
 exports.getAttendenceByStatus = async (req, res) => {
     const body = req.params.status 
     try {

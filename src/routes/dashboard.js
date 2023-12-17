@@ -5,4 +5,5 @@ const dashboardController = require('../controller/dashboard');
 
 router.get('/', dashboardController.indexDashboard);
 router.get('/:status', dashboardController.getAttendenceByStatus);
+
 module.exports = router;

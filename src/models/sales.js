@@ -3,9 +3,9 @@ const itemSummary = require('../modules/itemSummary');
 const summarySales = async () => {
     let sql;
     let stats = []
-    sql = `SELECT SUM(sales.total) as total, sales.branch_id, branches.name as outlet FROM sales 
+    sql = `SELECT SUM(sales.total) as total, sales.created_at as tgl, sales.branch_id, branches.name as outlet FROM sales 
     LEFT JOIN branches ON branches.id = sales.branch_id
-    WHERE sales.created_at >= DATE(NOW() - INTERVAL 7 DAY) AND sales.branch_id IS NOT NULL
+    WHERE DATE(sales.created_at) >= DATE(NOW() - INTERVAL 6 DAY) AND sales.branch_id IS NOT NULL
     GROUP BY sales.branch_id`
     let colors = ['#4B5563','#DC2626','#F59E0B','#10B981','#8B5CF6','#3B82F6','#84cc16']
     let labels= []

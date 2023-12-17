@@ -43,6 +43,7 @@ const printerRoutes = require('./src/routes/printer');
 const supplierRoutes = require('./src/routes/suppliers');
 const purchasingRoutes = require('./src/routes/purchasing');
 const summaryIngredientRoutes = require('./src/routes/summeryIngredients');
+const summaryItemRoutes = require('./src/routes/summaryItems');
 const adjustmentIngredientRoutes = require('./src/routes/adjustmentIngredients');
 const transferIngredientRoutes = require('./src/routes/transferIngredients');
 const inventoryInredientRoutes = require('./src/routes/inventoryIngredients');
@@ -80,6 +81,7 @@ app.use('/inventory-ingredients', authenticateToken, inventoryInredientRoutes);
 app.use('/inventory-items', authenticateToken, inventoryItemRoutes);
 app.use('/incoming', authenticateToken, incomingItemRoutes)
 app.use('/adjustment-items', authenticateToken, adjustmentItemRoutes);
+app.use('/summary-items', authenticateToken, summaryItemRoutes);
 
 cron.schedule('0 1 * * *', async () => {
     await tasks.summary_ingredients()

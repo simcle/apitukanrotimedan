@@ -23,20 +23,40 @@ const getAllPurchasing = async (body) => {
     let totalItems;
     let search = body.search
     let sql;
-    sql = `SELECT COUNT(*) as count FROM purchasing
-    LEFT JOIN suppliers ON suppliers.id = purchasing.supplier_id
-    WHERE suppliers.name LIKE '%${search}%'`
+    let filter = body.filter
+
+    if(filter) {
+        let branch = filter.join("','")
+        sql = `SELECT COUNT(*) as count FROM purchasing
+        LEFT JOIN suppliers ON suppliers.id = purchasing.supplier_id
+        WHERE suppliers.name LIKE '%${search}%' AND purchasing.branch_id IN ('${branch}')`
+    } else {
+        sql = `SELECT COUNT(*) as count FROM purchasing
+        LEFT JOIN suppliers ON suppliers.id = purchasing.supplier_id
+        WHERE suppliers.name LIKE '%${search}%'`
+    }
     const [count]  = await dbPool.execute(sql)
     if(count[0].count) {
         totalItems = count[0].count
     } else {
         totalItems = 0
     } 
-    sql = `SELECT purchasing.*, suppliers.name as supplier_name FROM purchasing
-    LEFT JOIN suppliers ON suppliers.id = purchasing.supplier_id
-    WHERE suppliers.name LIKE '%${search}%'
-    ORDER BY purchasing.id DESC
-    LIMIT ${perPage} OFFSET ${(currentPage -1) * perPage}`
+    if(filter) {
+        let branch = filter.join("','")
+        sql = `SELECT purchasing.*, suppliers.name as supplier_name, branches.name as branch_name FROM purchasing
+        LEFT JOIN suppliers ON suppliers.id = purchasing.supplier_id
+        LEFT JOIN branches ON branches.id = purchasing.branch_id
+        WHERE suppliers.name LIKE '%${search}%' AND purchasing.branch_id IN ('${branch}')
+        ORDER BY purchasing.id DESC
+        LIMIT ${perPage} OFFSET ${(currentPage -1) * perPage}`
+    } else {
+        sql = `SELECT purchasing.*, suppliers.name as supplier_name, branches.name as branch_name FROM purchasing
+        LEFT JOIN suppliers ON suppliers.id = purchasing.supplier_id
+        LEFT JOIN branches ON branches.id = purchasing.branch_id
+        WHERE suppliers.name LIKE '%${search}%'
+        ORDER BY purchasing.id DESC
+        LIMIT ${perPage} OFFSET ${(currentPage -1) * perPage}`
+    }
     const [data] = await dbPool.execute(sql)
     for (let i = 0; i < data.length; i++) {
         const purchasingId = data[i].id 

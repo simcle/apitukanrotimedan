@@ -15,6 +15,7 @@ exports.downloadSales = async (req, res) => {
     const start = moment(body.start).format('DD/MM/YYYY')
     const end = moment(body.end).format('DD/MM/YYYY')
     try {
+        let lastRow = 0
         const data = await SalesModel.downloadSales(body)
         // EXCEL
         let workbook = new excel.Workbook()
@@ -33,6 +34,7 @@ exports.downloadSales = async (req, res) => {
         worksheet.getRow(3).values = ['Tanggal', 'Outlet', 'Transaksi', 'Pembeli', 'Kasir', 'Pembayaran', '']
         for(let i = 0; i < data.length; i++) {
             const row = 4 + i
+            lastRow +=1
             worksheet.addRow(data[i]).fill = {
                 type: 'pattern',
                 pattern:'solid',
@@ -40,6 +42,7 @@ exports.downloadSales = async (req, res) => {
             }
             worksheet.addRow(['','ITEMS', 'QTY', 'HARGA', 'TOTAL'])
             for(let s=0; s < data[i].items.length; s++) {
+                lastRow +=1
                 const item = data[i].items[s]
                 let name;
                 if(item.name) {
@@ -49,7 +52,10 @@ exports.downloadSales = async (req, res) => {
                 }
                 worksheet.addRow(['', name, item.qty, item.price, item.total])
             }
-            
+        }
+        const row = worksheet.lastRow._number + 1
+        worksheet.getCell(`F${row}`).value = {
+            formula: `SUM(F4:F${row-1})`
         }
         res.setHeader(
             "Content-Type",
