@@ -50,7 +50,7 @@ exports.UserLogin = async (req, res) => {
                 }
                 if( await bcrypt.compare(password, result.password)) {
                     const user = {id: result.id, branch_id: result.branch_id, role: result.role}
-                    const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn: tokenExpired})
+                    const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET)
                     const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET)
                     const payload = {
                         id: result.id,
@@ -69,12 +69,14 @@ exports.UserLogin = async (req, res) => {
                     res.status(400).send('Password salah');
                 }
             } catch (error) {
+                console.log(error)
                 res.status(400).send(error)
             }
         } else {
             res.status(400).send('Email tidak ditemukan')
         }
     } catch (error) {
+        
         res.status(400).send(error)
     }
 }
