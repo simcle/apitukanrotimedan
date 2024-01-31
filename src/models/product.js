@@ -318,6 +318,21 @@ async function generateSku () {
     return sku
 }
 
+async function exportProduct () {
+    let sql 
+    sql = `SELECT products.*, brands.name as brand, categories.name as category,
+        item_variants.name as variant,
+        item_variants.sku as sku,
+        item_variants.price as price,
+        item_variants.id as variant_id
+        FROM products
+        LEFT JOIN brands ON brands.id = products.brand_id 
+        LEFT JOIN categories ON categories.id = products.category_id
+        LEFT JOIN item_variants ON item_variants.product_id = products.id
+    `
+    let [items] = await dbPool.execute(sql)
+    return items
+}
 module.exports = {
     getFilter,
     getAllProduct,
@@ -325,4 +340,5 @@ module.exports = {
     importPorduct,
     insertProduct,
     updateProduct,
+    exportProduct
 }

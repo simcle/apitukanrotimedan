@@ -31,5 +31,6 @@ router.get('/detail/:id', productController.getDetailProduct);
 router.post('/', upload.single('image'), productController.insertProduct);
 router.put('/', upload.single('image'), productController.updateProduct);
 router.post('/import', fileImport.single('file'), productController.fileImport);
+router.get('/export', productController.exportProduct);
 
 module.exports = router;

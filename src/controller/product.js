@@ -148,3 +148,29 @@ exports.updateProduct = async (req, res) => {
     }
 }
 
+exports.exportProduct = async (req, res) => {
+    const data = await ProdcutModel.exportProduct()
+    let workbook = new Excel.Workbook()
+    let worksheet = workbook.addWorksheet('Items')
+    worksheet.columns = [
+        {key: 'variant_id', width: 15},
+        {key: 'sku',  width: 10},
+        {key: 'name', width: 35},
+        {key: 'brand',  width: 15},
+        {key: 'category',  width: 25},
+        {key: 'variant',  width: 20},
+        {key: 'price',  width: 15},
+    ]
+    worksheet.getRow(1).values = ['Internal ID variant', 'SKU', 'Items Name', 'Brand Name', 'Category Name', 'Variant Name', 'Basic Price']
+    worksheet.addRows(data)
+    res.setHeader(
+        "Content-Type",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader(
+        "Content-Disposition",
+        "attachment; filename=" + "tutorials.xlsx"
+    );
+    await workbook.xlsx.write(res);
+    res.status(200).end();
+}
