@@ -69,7 +69,6 @@ exports.UserLogin = async (req, res) => {
                     res.status(400).send('Password salah');
                 }
             } catch (error) {
-                console.log(error)
                 res.status(400).send(error)
             }
         } else {

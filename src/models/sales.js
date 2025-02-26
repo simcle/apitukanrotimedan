@@ -151,7 +151,7 @@ const downloadSales = async (body) => {
     let sql;
     if(filter) {
         filter = `'${filter.join("','")}'`
-        sql = `SELECT sales.*, DATE_FORMAT(sales.created_at, '%d/%m/%Y %H:%i') as created_at, branches.name as outlet, users.name as kasir FROM sales 
+        sql = `SELECT sales.*, DATE_FORMAT(sales.created_at, '%d/%m/%Y  %H:%i') as created_at, branches.name as outlet, users.name as kasir FROM sales 
         LEFT JOIN users ON users.id=sales.user_id
         LEFT JOIN branches ON branches.id=sales.branch_id
         WHERE (DATE(sales.created_at) BETWEEN '${start}' AND '${end}') AND status='Posted' AND sales.branch_id IN (${filter}) ORDER BY sales.created_at ASC`
